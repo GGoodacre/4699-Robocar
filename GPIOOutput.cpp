@@ -1,11 +1,13 @@
 #include "GPIOOutput.h"
 
-GPIOOutput::GPIOOutput( CControl& device,
-                        std::mutex& lock,
+GPIOOutput::GPIOOutput(
                         int port )
 {
-    init(   device,
-            lock,
+    init(
             DIGITAL,
             port);
+}
+
+GPIOOutput::~GPIOOutput()
+{
 }

@@ -4,8 +4,7 @@
 class HBridge
 {
     public:
-        HBridge(CControl& device,
-                std::mutex& lock,
+        HBridge(
                 bool orientation,
                 int port_IN1,
                 int port_IN2,

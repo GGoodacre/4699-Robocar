@@ -6,8 +6,7 @@ class Motor :
     public Component
 {
     public:
-        Motor(  CControl& device,
-                std::mutex& lock,
+        Motor(
                 bool orientation,
                 int port_IN1,
                 int port_IN2,

@@ -1,14 +1,13 @@
 #include "HBridge.h"
 
-HBridge::HBridge(   CControl &device,
-                    std::mutex &lock,
+HBridge::HBridge(
                     bool orientation,
                     int port_IN1,
                     int port_IN2,
                     int port_STBY) :
-        _IN1(GPIOOutput(device, lock, port_IN1)),
-        _IN2(GPIOOutput(device, lock, port_IN2)),
-        _STBY(GPIOOutput(device, lock, port_STBY)),
+        _IN1(GPIOOutput(port_IN1)),
+        _IN2(GPIOOutput(port_IN2)),
+        _STBY(GPIOOutput(port_STBY)),
         _orientation(orientation)
 {
     _STBY.set_value(HIGH);
@@ -32,4 +31,8 @@ void HBridge::set_direction(int direction)
             _IN2.set_value(LOW);
             break;
     }
+}
+
+
+HBridge::~HBridge() {
 }

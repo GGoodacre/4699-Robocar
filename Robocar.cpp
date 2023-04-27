@@ -1,25 +1,21 @@
 #include "Robocar.h"
 
-Robocar::Robocar()
-{
-    //Initialize Left Motor
-    _motor_left = Motor(    &_device,
-                            &_gpio_lock,
+Robocar::Robocar() :
+    _motor_left(Motor(
                             CCW,
                             AIN1,
                             AIN2,
                             STBY,
-                            MOTOR_LEFT,
-                            );
-    //Initialize Right Motor
-    _motor_right = Motor(   &_device,
-                            &_gpio_lock,
+                            MOTOR_LEFT
+                            )),
+    _motor_right(Motor(
                             CW,
                             BIN1,
                             BIN2,
                             STBY,
-                            MOTOR_RIGHT,
-                            );
+                            MOTOR_RIGHT
+                            ))
+{
 
     //Initilize OPENCV Window
     cvui::init("Input");
@@ -28,18 +24,18 @@ Robocar::Robocar()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// 
+//
 ////////////////////////////////////////////////////////////////////////////
-void Robocar::update() 
+void Robocar::update()
 {
     move();
     return;
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// 
+//
 ////////////////////////////////////////////////////////////////////////////
-void Robocar::draw() 
+void Robocar::draw()
 {
     _input_box = cv::Mat::zeros(cv::Size(INPUT_WIDTH,INPUT_HEIGHT), CV_8UC3);
     cv::imshow("Input", _input_box);
@@ -47,11 +43,11 @@ void Robocar::draw()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// 
+//
 ////////////////////////////////////////////////////////////////////////////
-void Robocar::move() 
+void Robocar::move()
 {
-    switch(_key) 
+    switch(_key)
     {
         case 'w':
             _motor_left.set_direction(FORWARD);
@@ -77,16 +73,15 @@ void Robocar::move()
             _motor_right.set_direction(REVERSE);
             _motor_right.set_power(20);
             break;
-        case default:
+        default:
             _motor_left.set_direction(BRAKE);
             _motor_right.set_direction(BRAKE);
             break;
     }
 }
 
+Robocar::~Robocar() {
+}
 
-////////////////////////////////////////////////////////////////////////////
-// PARAMETERS
-////////////////////////////////////////////////////////////////////////////
-#define INPUT_WIDTH 600
-#define INPUT_HEIGHT 700
+
+

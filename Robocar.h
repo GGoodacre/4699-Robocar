@@ -1,6 +1,7 @@
 #pragma once
 #include "CBase4618.h"
 #include "Motor.h"
+#include "cvui.h"
 
 
 class Robocar :
@@ -13,7 +14,7 @@ class Robocar :
         // Update the cars state and handles communication
         void update();
 
-        // 
+        //
         void draw();
     private:
 
@@ -24,4 +25,10 @@ class Robocar :
         Motor _motor_right;
 
         cv::Mat _input_box;
-}
+};
+
+////////////////////////////////////////////////////////////////////////////
+// PARAMETERS
+////////////////////////////////////////////////////////////////////////////
+#define INPUT_WIDTH 600
+#define INPUT_HEIGHT 700

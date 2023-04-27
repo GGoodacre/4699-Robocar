@@ -5,12 +5,9 @@ class GPIOOutput :
     public Component
 {
     public:
-        GPIOOutput( CControl& device,
-                    std::mutex& lock,
+        GPIOOutput(
                     int port
                     );
-        GPIOOutput();
-
         ~GPIOOutput();
 };
 

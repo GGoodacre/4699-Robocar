@@ -1,7 +1,6 @@
 #include "Motor.h"
 
-Motor::Motor(   CControl &device,
-                std::mutex &lock,
+Motor::Motor(
                 bool orientation,
                 int port_IN1,
                 int port_IN2,
@@ -9,10 +8,9 @@ Motor::Motor(   CControl &device,
                 int port_PWM ) :
         _orientation(orientation),
         _direction(BRAKE),
-        _hbridge(HBridge( device, lock, _orientation, port_IN1, port_IN2, port_STBY))
+        _hbridge(HBridge(_orientation, port_IN1, port_IN2, port_STBY))
 {
-    init(   device,
-            lock,
+    init(
             PWM,
             port_PWM);
 
@@ -35,4 +33,6 @@ void Motor::set_max(int max)
     _max_power = max*PWM_scale;
 }
 
+Motor::~Motor() {
+}
 
