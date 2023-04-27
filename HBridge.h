@@ -1,18 +1,19 @@
+#pragma once
 #include "GPIOOutput.h"
 
 class HBridge
 {
     public:
-        Hbridge(CControl& device, 
+        HBridge(CControl& device,
                 std::mutex& lock,
                 bool orientation,
                 int port_IN1,
                 int port_IN2,
                 int port_STBY
                 );
-        ~Hbridge();
+        ~HBridge();
 
-        set_direction(int direction)
+        void set_direction(int direction);
     private:
         int _direction;
         bool _orientation;
@@ -20,4 +21,4 @@ class HBridge
         GPIOOutput _IN1;
         GPIOOutput _IN2;
         GPIOOutput _STBY;
-}
+};

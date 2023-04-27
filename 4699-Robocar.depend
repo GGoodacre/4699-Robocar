@@ -1,0 +1,37 @@
+# depslib dependency file v1.0
+1682609839 source:/home/ggoodacre/Documents/4699-Robocar/CControl.cpp
+	"CControl.h"
+	"pigpio.h"
+	<iostream>
+	<chrono>
+
+1682525824 /home/ggoodacre/Documents/4699-Robocar/CControl.h
+	<math.h>
+	"pigpio.h"
+
+1682609793 source:/home/ggoodacre/Documents/4699-Robocar/Component.cpp
+	"Component.h"
+
+1682609837 /home/ggoodacre/Documents/4699-Robocar/Component.h
+	"CControl.h"
+	<mutex>
+
+1682610989 source:/home/ggoodacre/Documents/4699-Robocar/GPIOOutput.cpp
+	"GPIOOutput.h"
+
+1682610969 /home/ggoodacre/Documents/4699-Robocar/GPIOOutput.h
+	"Component.h"
+
+1682611185 source:/home/ggoodacre/Documents/4699-Robocar/HBridge.cpp
+	"HBridge.h"
+
+1682610771 /home/ggoodacre/Documents/4699-Robocar/HBridge.h
+	"GPIOOutput.h"
+
+1682611542 source:/home/ggoodacre/Documents/4699-Robocar/Motor.cpp
+	"Motor.h"
+
+1682611536 /home/ggoodacre/Documents/4699-Robocar/Motor.h
+	"Component.h"
+	"HBridge.h"
+

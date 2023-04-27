@@ -65,22 +65,22 @@ bool CControl::get_data(int type, int channel, int& result)
 
 bool CControl::set_data(int type, int channel, int val)
 {
-	if(type == DIGITAL) 
+	if(type == DIGITAL)
 	{
 		gpioWrite(channel, val);
 		return true;
 	}
-	if(type == SERVO) 
+	if(type == SERVO)
 	{
 		gpioServo(channel, val);
 		return true;
 	}
-	if(type == PWM) 
+	if(type == PWM)
 	{
-		gpioPWM(channel, val)
+		gpioPWM(channel, val);
 		return true;
 	}
-	else 
+	else
 	{
 		return false;
 	}

@@ -6,19 +6,19 @@ class Motor :
     public Component
 {
     public:
-        Motor(  CControl& device, 
+        Motor(  CControl& device,
                 std::mutex& lock,
                 bool orientation,
                 int port_IN1,
                 int port_IN2,
                 int port_STBY,
-                int port_PWM,
+                int port_PWM
                 );
         ~Motor();
 
-        set_power(int power);
-        set_direction(int direction);
-        set_max(int max);
+        void set_power(int power);
+        void set_direction(int direction);
+        void set_max(int max);
 
     private:
         int _max_power;
@@ -28,5 +28,6 @@ class Motor :
         int _current_power;
         HBridge _hbridge;
 
-}
+};
 
+#define PWM_scale 255
