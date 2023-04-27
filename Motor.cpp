@@ -30,7 +30,7 @@ void Motor::set_direction(int direction)
 
 void Motor::set_max(int max)
 {
-    _max_power = max*PWM_scale;
+    _max_power = (max*PWM_scale)/100;
 }
 
 Motor::~Motor() {

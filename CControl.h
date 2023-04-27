@@ -5,17 +5,17 @@ enum {DIGITAL = 0, ANALOG, SERVO, PWM};
 
 #define MOTOR_RIGHT 17
 #define MOTOR_LEFT 27
-#define SERVO_X 4
-#define SERVO_Y 16
-#define SERVO_TRIGGER 20
-#define AIN1 1
-#define BIN1 2
-#define AIN2 3
-#define BIN2 4
-#define STBY 7
+#define SERVO_X 5
+#define SERVO_Y 6
+#define SERVO_TRIGGER 12
+#define AIN1 3
+#define BIN1 10
+#define AIN2 4
+#define BIN2 22
+#define STBY 2
 
 #define OUTPUT 1
-#define INPUT 0 
+#define INPUT 0
 #define PULLUP 1
 
 /**
@@ -36,7 +36,7 @@ public:
 
 	bool init();
 
-	void gpio_init(int port, bool output, bool pullup = 0);
+	void gpio_init(int port, bool output = 1, bool pullup = 0);
 
 	/**
 	* @brief Reads analog/digital/servo data and sets result to the value
