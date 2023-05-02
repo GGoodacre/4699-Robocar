@@ -1,6 +1,7 @@
 #pragma once
 #include "Client.h"
 #include <chrono>
+#include <thread>
 
 class Robo_Client :
     protected CClient
@@ -11,8 +12,8 @@ class Robo_Client :
 
         void start(std::string addr, int port);
 
-        cv::mat get_image();
-        std::vector<std::string> get_status();
+        cv::Mat get_image();
+        std::string get_status();
 
 
     private:
@@ -22,8 +23,8 @@ class Robo_Client :
         static void run_client(Robo_Client* ptr);
         static void image_client(Robo_Client* ptr);
 
-        std::vector<std::string> _status
-        cv::mat _im;
+        std::string _status;
+        cv::Mat _im;
 };
 
 #define ARENA_PORT 5001

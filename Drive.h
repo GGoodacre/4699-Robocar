@@ -1,7 +1,7 @@
 #pragma once
 #include "Motor.h"
 
-class Drive :
+class Drive
 {
     public:
         Drive();
@@ -16,7 +16,7 @@ class Drive :
         Motor _motor_right;
 
         int _current_angle;
-    
+
 
 };
 

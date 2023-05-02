@@ -4,10 +4,13 @@
 class Camera
 {
     public:
-    
-        cv::mat capture_frame();
-    
+        Camera();
+
+        cv::Mat capture_frame();
+
     private:
 
+        cv::VideoCapture _vid;
+        cv::Mat BGR_frame;
 
 };

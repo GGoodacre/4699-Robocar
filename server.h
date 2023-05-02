@@ -32,17 +32,17 @@ public:
 	~Server();
 
   // Start server listening (probably best to do in a separate thread)
-  void start(int port);
-  void stop();
+  virtual void start(int port);
+  virtual void stop();
 
   // Set the image to transmit
-  void set_txim (cv::Mat &im);
+  virtual void set_txim (cv::Mat &im);
 
   // Get a vector of the commands the server has read
-  void get_cmd (std::vector<std::string> &cmds);
+  virtual void get_cmd (std::vector<std::string> &cmds);
 
   // Send a response
-  void send_string (std::string send_str);
+  virtual void send_string (std::string send_str);
 };
 
 

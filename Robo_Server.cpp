@@ -1,38 +1,41 @@
 #include "Robo_Server.h"
 
-Robo_Server::Robo_Server()
+Robo_Server::Robo_Server():
     _thread_exit(false)
-{   
+{
 }
 
-Robo_Server::~Robo_Server() 
+Robo_Server::~Robo_Server()
 {
     _thread_exit = true;
-    std::this_thread::sleep(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
 
-bool Robo_Server::start(int port, cv::mat& im) 
+void Robo_Server::start(int port, cv::Mat& im)
 {
-    std::thread th_server_start(port, &Robo_Server::start_server, this);
-    std::thread th_server_run(im, &Robo_Server::run_server, this)
-    th_start.detach();
+
+    std::thread th_server_start(&Robo_Server::start_server, port, this);
+    std::thread th_server_run(&Robo_Server::run_server, std::ref(im), this);
+    th_server_start.detach();
     th_server_run.detach();
 }
 
-void Robo_Server::start_server(int port, Robo_Server* ptr, std::string addr) 
+void Robo_Server::start_server(int port, Robo_Server* ptr)
 {
-    ptr->this->start(port);
+    ptr->start(port);
 }
 
-void Robo_Server::run_server(cv::mat& im, Robo_Server* ptr) 
+void Robo_Server::run_server(cv::Mat& im, Robo_Server* ptr)
 {
     cv::Mat frame;
-    while (ptr->_thread_exit == false) 
+    std::vector<std::string> cmds;
+    while (ptr->_thread_exit == false)
     {
         frame = im;
-        ptr->this->set_txim(frame);
-        ptr->this->get_cmds(ptr->_cmds);
+        ptr->set_txim(frame);
+        ptr->get_cmd(cmds);
+        ptr->_cmds = cmds;
     }
 }
 

@@ -1,4 +1,5 @@
 #include "Drive.h"
+#include <math.h>
 
 Drive::Drive() :
     _motor_left(Motor(
@@ -17,7 +18,7 @@ Drive::Drive() :
                             )),
     _current_angle(0)
 {
-    
+
 }
 
 void Drive::start()
@@ -34,11 +35,12 @@ void Drive::stop()
 void Drive::set_direction(int angle)
 {
     float sin_power;
-    switch(angle) {
-    case (angle >= 0 && angle <= 90):
+
+    if(angle >= 0 && angle <= 90)
+    {
         _motor_left.set_direction(FORWARD);
         _motor_left.set_power(MAX_POWER);
-        sin_power = MAX_POWER*cos(deg2rad(angle)*2);
+        sin_power = MAX_POWER*cos(angle*M_PI*2/180);
         if(sin_power < 0)
         {
             _motor_right.set_direction(REVERSE);
@@ -48,11 +50,12 @@ void Drive::set_direction(int angle)
             _motor_right.set_direction(FORWARD);
         }
         _motor_right.set_power(abs(sin_power));
-        break;
-    case (angle >= -90 && angle < 0):
+    }
+    else if(angle >= -90 && angle < 0)
+    {
         _motor_right.set_direction(FORWARD);
         _motor_right.set_power(MAX_POWER);
-        sin_power = MAX_POWER*cos(deg2rad(angle)*2);
+        sin_power = MAX_POWER*cos(angle*M_PI*2/180);
         if(sin_power < 0)
         {
             _motor_left.set_direction(REVERSE);
@@ -62,11 +65,12 @@ void Drive::set_direction(int angle)
             _motor_left.set_direction(FORWARD);
         }
         _motor_right.set_power(abs(sin_power));
-        break;
-    case (angle > 90 && angle <= 180):
+    }
+    else if(angle > 90 && angle <= 180)
+    {
         _motor_left.set_direction(REVERSE);
         _motor_left.set_power(MAX_POWER);
-        sin_power = MAX_POWER*cos(deg2rad(angle)*2 - pi());
+        sin_power = MAX_POWER*cos(angle*M_PI*2/180 - M_PI);
         if(sin_power < 0)
         {
             _motor_right.set_direction(REVERSE);
@@ -76,11 +80,12 @@ void Drive::set_direction(int angle)
             _motor_right.set_direction(FORWARD);
         }
         _motor_right.set_power(abs(sin_power));
-        break;
-    case (angle > -180 && angle < -90):
+    }
+    else if(angle > -180 && angle < -90)
+    {
         _motor_right.set_direction(REVERSE);
         _motor_right.set_power(MAX_POWER);
-        sin_power = MAX_POWER*cos(deg2rad(angle)*2 - pi());
+        sin_power = MAX_POWER*cos(angle*M_PI*2/180 - M_PI);
         if(sin_power < 0)
         {
             _motor_left.set_direction(REVERSE);
@@ -90,7 +95,6 @@ void Drive::set_direction(int angle)
             _motor_left.set_direction(FORWARD);
         }
         _motor_right.set_power(abs(sin_power));
-        break;
     }
     return;
 }

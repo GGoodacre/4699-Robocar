@@ -1,6 +1,17 @@
 #include "Camera.h"
 
-cv::mat Camera::capture_frame()
+
+
+Camera::Camera()
+{
+    _vid.open(0, cv::CAP_V4L2);
+    if(_vid.isOpened() == false) {
+        std::cout << "Camera open failure" << std::endl;
+    }
+}
+
+
+cv::Mat Camera::capture_frame()
 {
     _vid >> BGR_frame;
     if(BGR_frame.empty() == false) {
