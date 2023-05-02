@@ -225,7 +225,7 @@ void Server::start(int port)
 
 							_image_mutex.lock();
 							_txim.copyTo(frame);
-                            _image_mutex.unlock();
+              _image_mutex.unlock();
 
 							image_buffer.clear();
 							if (frame.empty() == false)
