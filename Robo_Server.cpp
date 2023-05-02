@@ -32,7 +32,9 @@ void Robo_Server::run_server(cv::Mat& im, Robo_Server* ptr)
     std::vector<std::string> cmds;
     while (ptr->_thread_exit == false)
     {
+        ptr->_lock.lock();
         frame = im;
+        ptr->_lock.unlock();
         ptr->set_txim(frame);
         ptr->get_cmd(cmds);
         ptr->_cmds = cmds;

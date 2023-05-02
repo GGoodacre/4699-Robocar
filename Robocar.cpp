@@ -1,6 +1,7 @@
 #include "Robocar.h"
 
-Robocar::Robocar()
+Robocar::Robocar() :
+    _mode(STANDBY)
 {
 
     //Initilize OPENCV Window
@@ -58,7 +59,7 @@ Robocar::~Robocar() {
 
 
 void Robocar::drivePI() {
-    switch(_key) 
+    switch(_key)
     {
         case 'w':
             _drive.set_direction(0);
@@ -79,12 +80,14 @@ void Robocar::drivePI() {
 
 void Robocar::testPI()
 {
-    _camera.capture_frame();
+    _server.lock();
+    _pi_camera = _camera.capture_frame();
+    _server.unlock();
     std::vector<std::string> cmds;
     cmds = _server.get_cmds();
     if (cmds.size() > 0)
     {
-        for (int i = 0; i < cmds.size(); i++) 
+        for (int i = 0; i < cmds.size(); i++)
         {
             std::cout << cmds.at(i) << std::endl;
         }

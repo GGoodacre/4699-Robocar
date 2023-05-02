@@ -10,6 +10,11 @@ Camera::Camera()
     }
 }
 
+Camera::~Camera()
+{
+    _vid.release();
+}
+
 
 cv::Mat Camera::capture_frame()
 {

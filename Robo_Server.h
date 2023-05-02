@@ -13,6 +13,8 @@ class Robo_Server :
 
         void start(int port, cv::Mat& im);
         std::vector<std::string> get_cmds() { return _cmds; };
+        void lock() {_lock.lock(); };
+        void unlock() {_lock.unlock(); };
 
     protected:
         void start(int port) override { Server::start(port); };
@@ -23,6 +25,7 @@ class Robo_Server :
 
     private:
 
+        std::mutex _lock;
         std::vector<std::string> _cmds;
 
 
