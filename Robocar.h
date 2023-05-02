@@ -2,7 +2,11 @@
 #include "CBase4618.h"
 #include "Motor.h"
 #include "cvui.h"
-
+#include "Server.h"
+#include "Drive.h"
+#include "Robo_Server.h"
+#include "Robo_Client.h"
+#include "Camera.h"
 
 class Robocar :
     public CBase4618
@@ -17,18 +21,19 @@ class Robocar :
         //
         void draw();
     private:
+        
+        // ROBOT CONTROL
+        Drive _drive;
+        cv::mat _input_box;
 
-        void move();
-        std::mutex _gpio_lock;
+        int _mode;
+        cv::mat _pi_camera;
+        
+        Robo_Server _server;
+        Camera _camera;
+        void drivePI();
+        void testPI();
+}
 
-        Motor _motor_left;
-        Motor _motor_right;
-
-        cv::Mat _input_box;
-};
-
-////////////////////////////////////////////////////////////////////////////
-// PARAMETERS
-////////////////////////////////////////////////////////////////////////////
-#define INPUT_WIDTH 600
-#define INPUT_HEIGHT 700
+enum {STANDBY = 0, PI, MANUAL, AUTO};
+#define STANDBY_MODE '~'

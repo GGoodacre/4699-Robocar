@@ -14,4 +14,5 @@ void Component::set_value(int value)
 }
 
 Component::~Component() {
+
 }

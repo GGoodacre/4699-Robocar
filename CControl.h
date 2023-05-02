@@ -3,8 +3,8 @@
 #include "pigpio.h"
 enum {DIGITAL = 0, ANALOG, SERVO, PWM};
 
-#define MOTOR_RIGHT 17
-#define MOTOR_LEFT 27
+#define MOTOR_LEFT 17
+#define MOTOR_RIGHT 27
 #define SERVO_X 5
 #define SERVO_Y 6
 #define SERVO_TRIGGER 12

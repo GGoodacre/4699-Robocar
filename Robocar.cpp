@@ -1,25 +1,12 @@
 #include "Robocar.h"
 
-Robocar::Robocar() :
-    _motor_left(Motor(
-                            CCW,
-                            AIN1,
-                            AIN2,
-                            STBY,
-                            MOTOR_LEFT
-                            )),
-    _motor_right(Motor(
-                            CW,
-                            BIN1,
-                            BIN2,
-                            STBY,
-                            MOTOR_RIGHT
-                            ))
+Robocar::Robocar()
 {
 
     //Initilize OPENCV Window
     cvui::init("Input");
     _input_box = cv::Mat::zeros(cv::Size(INPUT_WIDTH,INPUT_HEIGHT), CV_8UC3);
+    _server.start(PC_PORT, _pi_camera);
 
 }
 
@@ -28,8 +15,29 @@ Robocar::Robocar() :
 ////////////////////////////////////////////////////////////////////////////
 void Robocar::update()
 {
-    move();
+    if(_key == STANDBY_MODE)
+    {
+        _mode = STANDBY;
+    }
+    switch(_mode)
+    {
+        case STANDBY:
+            if(_key == 't') // ENTER TEST MODE
+            {
+                _mode = PI;
+            }
+            break;
+        case PI:
+            drivePI();
+            testPI();
+            break;
+        case MANUAL:
+            break;
+        case AUTO:
+            break;
+    }
     return;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -45,43 +53,41 @@ void Robocar::draw()
 ////////////////////////////////////////////////////////////////////////////
 //
 ////////////////////////////////////////////////////////////////////////////
-void Robocar::move()
-{
-    switch(_key)
-    {
-        case 'w':
-            _motor_left.set_direction(FORWARD);
-            _motor_left.set_power(20);
-            _motor_right.set_direction(FORWARD);
-            _motor_right.set_power(20);
-            break;
-        case 'a':
-            _motor_left.set_direction(REVERSE);
-            _motor_left.set_power(20);
-            _motor_right.set_direction(FORWARD);
-            _motor_right.set_power(20);
-            break;
-        case 's':
-            _motor_left.set_direction(REVERSE);
-            _motor_left.set_power(20);
-            _motor_right.set_direction(REVERSE);
-            _motor_right.set_power(20);
-            break;
-        case 'd':
-            _motor_left.set_direction(FORWARD);
-            _motor_left.set_power(20);
-            _motor_right.set_direction(REVERSE);
-            _motor_right.set_power(20);
-            break;
-        default:
-            _motor_left.set_direction(BRAKE);
-            _motor_right.set_direction(BRAKE);
-            break;
-    }
-}
-
 Robocar::~Robocar() {
 }
 
 
+void Robocar::drivePI() {
+    switch(_key) 
+    {
+        case 'w':
+            _drive.set_direction(0);
+            break;
+        case 'a':
+            _drive.set_direction(-90);
+            break;
+        case 's':
+            _drive.set_direction(90);
+            break;
+        case 'd':
+            _drive.set_direction(180);
+            break;
+        default:
+            _drive.stop();
+    }
+}
 
+void Robocar::testPI()
+{
+    _camera.capture_frame();
+    std::vector<std::string> cmds;
+    cmds = _server.get_cmds();
+    if (cmds.size() > 0)
+    {
+        for (int i = 0; i < cmds.size(); i++) 
+        {
+            std::cout << cmds.at(i) << std::endl;
+        }
+    }
+
+}
