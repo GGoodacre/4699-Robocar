@@ -15,3 +15,12 @@ void Aruco::find_markers()
 {
     cv::aruco::detectMarkers(_im, _dictionary, _corners, _ids);
 }
+
+
+void Aruco::draw_markers()
+{
+    if(_ids.size() > 0)
+    {
+        cv::aruco::drawDetectedMarkers(_im, _corners, _ids);
+    }
+}

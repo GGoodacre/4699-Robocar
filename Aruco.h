@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 
-class Aruco
+class Aruco 
 {
     public:
         Aruco();
@@ -11,11 +11,15 @@ class Aruco
         std::vector<std::vector<cv::Point2f>> get_corners() { return _corners; };
         void find_markers();
 
+        void draw_markers();
+
     protected:
         std::vector<int> _ids;
         std::vector<std::vector<cv::Point2f> > _corners;
         cv::Ptr<cv::aruco::Dictionary> _dictionary;
 
+        void set_image(cv::Mat& im) { _im = im; };
+    
     private:
         cv::Mat _im;
 
