@@ -34,10 +34,11 @@ class Robocar :
         void testPI();
 
         std::vector<int> test_ids;
+        int whatsgoingon;
 
 };
 
 enum {STANDBY = 0, PI, MANUAL, AUTO};
-#define STANDBY_MODE '~'
+#define STANDBY_MODE '`'
 #define INPUT_WIDTH 200
 #define INPUT_HEIGHT 200

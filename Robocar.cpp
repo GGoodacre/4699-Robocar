@@ -31,6 +31,7 @@ void Robocar::update()
             if(_key == 't') // ENTER TEST MODE
             {
                 _mode = PI;
+                whatsgoingon = 0;
             }
             break;
         case PI:
@@ -85,7 +86,8 @@ void Robocar::drivePI() {
 
 void Robocar::testPI()
 {
-    std::cout << "running" << std::endl;
+    std::cout << whatsgoingon << std::endl;
+    whatsgoingon++;
     _server.lock();
     _pi_camera = _camera.capture_frame();
     _server.unlock();
