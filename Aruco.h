@@ -18,7 +18,7 @@ class Aruco
         std::vector<std::vector<cv::Point2f> > _corners;
         cv::Ptr<cv::aruco::Dictionary> _dictionary;
 
-        void set_image(cv::Mat& im) { _im = im; };
+        void set_ArucoImage(cv::Mat& im) { _im = im; };
     
     private:
         cv::Mat _im;

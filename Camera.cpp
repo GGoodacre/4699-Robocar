@@ -8,7 +8,7 @@ Camera::Camera()
     if(_vid.isOpened() == false) {
         std::cout << "Camera open failure" << std::endl;
     }
-    set_image(frame);
+    set_ArucoImage(frame);
 }
 
 Camera::~Camera()
@@ -21,12 +21,12 @@ cv::Mat Camera::capture_frame()
 {
     _vid >> frame;
     if(frame.empty() == false) {
-        cv::imshow("Image", frame);
         if(_Aruco_ON)
         {
             find_markers();
             draw_markers();
         }
+        cv::imshow("Image", frame);
         return frame;
     }
     else {
