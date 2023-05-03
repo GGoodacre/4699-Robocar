@@ -80,6 +80,7 @@ void Robocar::drivePI() {
 
 void Robocar::testPI()
 {
+    _camera.enable_Aruco();
     _server.lock();
     _pi_camera = _camera.capture_frame();
     _server.unlock();
