@@ -19,6 +19,11 @@ void Robocar::update()
     if(_key == STANDBY_MODE)
     {
         _mode = STANDBY;
+        for(int i; i < test_ids; i++)
+        {
+            std::cout << "Markers Found: " << test_ids.at(i) << " " << std::endl;
+        }
+        test_ids.erase();
     }
     switch(_mode)
     {
@@ -80,6 +85,7 @@ void Robocar::drivePI() {
 
 void Robocar::testPI()
 {
+    std::cout << "running" << std::endl;
     _server.lock();
     _pi_camera = _camera.capture_frame();
     _server.unlock();
@@ -90,7 +96,18 @@ void Robocar::testPI()
     {
         for(int i = 0; i < ids.size(); i++)
         {
-            std::cout << ids.at(i) << std::endl;
+            bool match = false
+            for(int j = 0 j < test_ids.size(); j++)
+            {
+                if(ids.at(i) == test_ids.at(j))
+                {
+                    match = true;
+                }
+            }
+            if(match == false)
+            {
+                test_ids.push_back(ids.at(i));
+            }
         }
     }
 

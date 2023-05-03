@@ -33,6 +33,8 @@ class Robocar :
         void drivePI();
         void testPI();
 
+        std::vector<int> test_ids;
+
 };
 
 enum {STANDBY = 0, PI, MANUAL, AUTO};
