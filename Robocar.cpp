@@ -68,10 +68,10 @@ void Robocar::drivePI() {
             _drive.set_direction(-90);
             break;
         case 's':
-            _drive.set_direction(90);
+            _drive.set_direction(180);
             break;
         case 'd':
-            _drive.set_direction(180);
+            _drive.set_direction(90);
             break;
         default:
             _drive.stop();
