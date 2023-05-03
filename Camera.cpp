@@ -2,7 +2,8 @@
 
 
 
-Camera::Camera()
+Camera::Camera() :
+    _Aruco_ON(true)
 {
     _vid.open(0, cv::CAP_V4L2);
     if(_vid.isOpened() == false) {
