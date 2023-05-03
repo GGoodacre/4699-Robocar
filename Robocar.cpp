@@ -83,12 +83,12 @@ void Robocar::testPI()
     _server.lock();
     _pi_camera = _camera.capture_frame();
     _server.unlock();
-    
+
     std::vector<int> ids;
     ids = _camera.get_ids();
-    if(ids.size > 0)
+    if(ids.size() > 0)
     {
-        for(int i = 0; i < ids.size; i++)
+        for(int i = 0; i < ids.size(); i++)
         {
             std::cout << ids.at(i) << std::endl;
         }

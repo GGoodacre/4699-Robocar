@@ -23,7 +23,7 @@ cv::Mat Camera::capture_frame()
         cv::imshow("Image", frame);
         if(_Aruco_ON)
         {
-            find_markers();
+            this->find_markers();
         }
         return frame;
     }

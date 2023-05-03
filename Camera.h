@@ -1,9 +1,10 @@
 #pragma once
 #include <opencv2/opencv.hpp>
 #include <vector>
+#include "Aruco.h"
 
 class Camera :
-    Aruco
+    public Aruco
 {
     public:
         Camera();
@@ -15,7 +16,7 @@ class Camera :
     private:
 
         cv::VideoCapture _vid;
-        cv::Mat BGR_frame;
+        cv::Mat frame;
 
         bool _Aruco_ON;
 
