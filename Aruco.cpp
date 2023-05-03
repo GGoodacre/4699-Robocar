@@ -13,7 +13,10 @@ Aruco::Aruco(cv::Mat &im) :
 
 void Aruco::find_markers()
 {
-    cv::aruco::detectMarkers(_im, _dictionary, _corners, _ids);
+    if(_im.empty() == false) 
+    {
+        cv::aruco::detectMarkers(_im, _dictionary, _corners, _ids);
+    }
 }
 
 

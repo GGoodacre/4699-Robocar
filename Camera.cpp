@@ -8,6 +8,7 @@ Camera::Camera()
     if(_vid.isOpened() == false) {
         std::cout << "Camera open failure" << std::endl;
     }
+    set_image(frame);
 }
 
 Camera::~Camera()
