@@ -25,6 +25,8 @@ class Robo_Client :
 
         std::string _status;
         cv::Mat _im;
+        cv::Mat _resized;
 };
 
 #define ARENA_PORT 5001
+#define ARENA_ADDRESS "127.0.0.1"

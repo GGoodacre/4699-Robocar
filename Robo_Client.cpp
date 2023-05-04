@@ -35,7 +35,6 @@ void Robo_Client::run_client(Robo_Client* ptr)
 {
     while (ptr->_thread_exit == false)
     {
-        cv::Mat frame;
         ptr->tx_str("G 0");
         ptr->rx_str(ptr->_status);
         ptr->tx_str("G 1");

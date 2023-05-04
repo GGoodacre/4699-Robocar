@@ -19,7 +19,7 @@ void Robocar::update()
     if(_key == STANDBY_MODE)
     {
         _mode = STANDBY;
-        for(int i; i < test_ids; i++)
+        for(int i; i < test_ids.size(); i++)
         {
             std::cout << "Markers Found: " << test_ids.at(i) << " " << std::endl;
         }
