@@ -236,6 +236,7 @@ void Server::start(int port)
 
 							// Send image
 							send(clientsock, reinterpret_cast<char*>(&image_buffer[0]), image_buffer.size(), 0);
+              std::this_thread::sleep_for(std::chrono::milliseconds(100));
 						}
 						// The client sent a message, add to cmd list queue
 						else
@@ -243,6 +244,7 @@ void Server::start(int port)
               _rx_mutex.lock();
 							_cmd_list.push_back(str);
               _rx_mutex.unlock();
+              std::this_thread::sleep_for(std::chrono::milliseconds(100));
 						}
 					}
         }
