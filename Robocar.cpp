@@ -23,7 +23,7 @@ void Robocar::update()
         {
             std::cout << "Markers Found: " << test_ids.at(i) << " " << std::endl;
         }
-        test_ids.erase();
+        test_ids.clear();
     }
     switch(_mode)
     {
@@ -98,8 +98,8 @@ void Robocar::testPI()
     {
         for(int i = 0; i < ids.size(); i++)
         {
-            bool match = false
-            for(int j = 0 j < test_ids.size(); j++)
+            bool match = false;
+            for(int j = 0; j < test_ids.size(); j++)
             {
                 if(ids.at(i) == test_ids.at(j))
                 {
