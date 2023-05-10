@@ -23,14 +23,21 @@ void Robo_Server::start(int port, cv::Mat& im)
 
 std::vector<std::string> Robo_Server::get_cmds()
 {
-    get_cmd(_cmd);
+    get_cmd(_cmds);
     return _cmds;
 }
 
 std::string Robo_Server::get_latest_cmd()
 {
-    get_cmds()
-    return _cmds[_cmds.size()-1];
+    get_cmds();
+    if (_cmds.size() > 0)
+    {
+        return _cmds[_cmds.size()-1];
+    }
+    else
+    {
+        return "EMPTY";
+    }
 }
 
 void Robo_Server::start_server(int port, Robo_Server* ptr)

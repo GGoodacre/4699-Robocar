@@ -1,7 +1,8 @@
 #include "Robocar.h"
 
 Robocar::Robocar() :
-    _mode(STANDBY)
+    _mode(STANDBY),
+    _cmd("000000000")
 {
 
     //Initilize OPENCV Window
@@ -19,11 +20,6 @@ void Robocar::update()
     if(_key == STANDBY_MODE)
     {
         _mode = STANDBY;
-        for(int i; i < test_ids.size(); i++)
-        {
-            std::cout << "Markers Found: " << test_ids.at(i) << " " << std::endl;
-        }
-        test_ids.clear();
     }
     switch(_mode)
     {
@@ -136,66 +132,61 @@ void Robocar::telecommunication_mode()
 
     std::string cmd;
     cmd = _server.get_latest_cmd();
-    std::cout << "Current CMD: " << cmd << std::endl;
-    telecommunication_drive(cmd[0:3]);
-    telecommunication_shoot(cmd[4:8]);
-    
+    if (cmd == "EMPTY")
+    {
+        _cmd = _cmd;
+    }
+    else
+    {
+        _cmd = cmd;
+    }
+    std::cout << "Current CMD: " << _cmd << std::endl;
+    telecommunication_drive(_cmd.substr(0,4));
+    telecommunication_shoot(_cmd.substr(4,5));
+
 }
 
 void Robocar::telecommunication_drive(std::string cmd)
 {
-    switch(cmd)
+    if (cmd == "0000")
     {
-        case "0000":
-        {
-            _drive.stop();
-            break;
-        }
-        case "0001":
-        {
-            _drive.set_direction(0);
-            break;
-        }
-        case "0010":
-        {
-            _drive.set_direction(-90);
-            break;
-        }
-        case "0100":
-        {
-            _drive.set_direction(180);
-            break;
-        }
-        case "1000":
-        {
-            _drive.set_direction(90);
-            break;
-        }
-        case "0011":
-        {
-            _drive.set_direction(-45);
-            break;
-        }
-        case "1001":
-        {
-            _drive.set_direction(45);
-            break;
-        }
-        case "0110":
-        {
-            _drive.set_direction(-135);
-            break;
-        }
-        case "1100":
-        {
-            _drive.set_direction(135);
-            break;
-        }
-        default:
-        {
-            _drive.stop();
-            break;
-        }
+        _drive.stop();
+    }
+    else if (cmd == "0001")
+    {
+        _drive.set_direction(0);
+    }
+    else if (cmd == "0010")
+    {
+        _drive.set_direction(-90);
+    }
+    else if (cmd == "0100")
+    {
+        _drive.set_direction(180);
+    }
+    else if (cmd == "1000")
+    {
+        _drive.set_direction(90);
+    }
+    else if (cmd == "0011")
+    {
+        _drive.set_direction(-45);
+    }
+    else if (cmd == "1001")
+    {
+        _drive.set_direction(45);
+    }
+    else if (cmd == "0110")
+    {
+        _drive.set_direction(-135);
+    }
+    else if (cmd == "1100")
+    {
+        _drive.set_direction(135);
+    }
+    else
+    {
+        _drive.stop();
     }
 }
 
@@ -206,43 +197,34 @@ void Robocar::telecommunication_shoot(std::string cmd)
 
     int x_change;
     int y_change;
-    switch(cmd[1:2])
+    if (cmd.substr(1,2) == "01")
     {
-        case "01":
-        {
-            y_change = delta/100;
-            break;
-        }
-        case "10":
-        {
-            y_change = -delta/100;
-            break;
-        }
-        default:
-        {
-            y_change = 0;
-        }
+        y_change = delta/100;
     }
-    switch(cmd[3:4])
+    else if (cmd.substr(1,2) == "10")
     {
-        case "01":
-        {
-            x_change = delta/100;
-            break;
-        }
-        case "10":
-        {
-            x_change = -delta/100;
-            break;
-        }
-        default:
-        {
-            y_change = 0;
-        }
+        y_change = -delta/100;
+    }
+    else
+    {
+        y_change = 0;
+    }
+    if (cmd.substr(3,2) == "01")
+    {
+        x_change = delta/100;
+    }
+    else if (cmd.substr(3,2) == "10")
+    {
+        x_change = -delta/100;
+    }
+    else
+    {
+        y_change = 0;
     }
 
     _gun.relative_move(x_change, y_change);
-    if(cmd[0] == "1" || _second_shot)
+
+    if(cmd.substr(0) == "1" || _second_shot)
     {
         if(_gun.fire())
         {
