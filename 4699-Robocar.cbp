@@ -37,6 +37,8 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="Aruco.cpp" />
+		<Unit filename="Aruco.h" />
 		<Unit filename="CBase4618.cpp" />
 		<Unit filename="CBase4618.h" />
 		<Unit filename="CControl.cpp" />
@@ -58,10 +60,14 @@
 		<Unit filename="Motor.h" />
 		<Unit filename="Robo_Client.cpp" />
 		<Unit filename="Robo_Client.h" />
+		<Unit filename="Robo_Gun.cpp" />
+		<Unit filename="Robo_Gun.h" />
 		<Unit filename="Robo_Server.cpp" />
 		<Unit filename="Robo_Server.h" />
 		<Unit filename="Robocar.cpp" />
 		<Unit filename="Robocar.h" />
+		<Unit filename="Servo.cpp" />
+		<Unit filename="Servo.h" />
 		<Unit filename="cvui.h" />
 		<Unit filename="server.cpp" />
 		<Unit filename="server.h" />

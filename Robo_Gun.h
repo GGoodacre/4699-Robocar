@@ -1,7 +1,7 @@
 #pragma once
 #include "Servo.h"
 
-class Robo_Gun 
+class Robo_Gun
 {
     public:
         Robo_Gun();
@@ -20,6 +20,6 @@ class Robo_Gun
 
         bool _firing;
 
-        void fire_process(Robo_Gun* ptr);
+        static void fire_process(Robo_Gun* ptr);
 };
 

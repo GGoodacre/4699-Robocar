@@ -47,7 +47,8 @@ class Robocar :
         void telecommunication_shoot(std::string cmd);
         std::chrono::system_clock::time_point _time_telecom;
         bool _second_shot;
-
+        std::string _cmd;
+};
 enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define STANDBY_MODE '`'
 #define INPUT_WIDTH 200
