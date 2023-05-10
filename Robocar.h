@@ -6,6 +6,7 @@
 #include "Robo_Server.h"
 #include "Robo_Client.h"
 #include "Camera.h"
+#include "Robo_Gun.h"
 
 class Robocar :
     public CBase4618
@@ -21,22 +22,31 @@ class Robocar :
         void draw();
     private:
 
+        int _mode;
+        std::vector<int> test_ids;
         // ROBOT CONTROL
         Drive _drive;
+        Robo_Gun _gun;
+
+        cv::Mat _pi_camera;
         cv::Mat _input_box;
 
-        int _mode;
-        cv::Mat _pi_camera;
-
         Robo_Server _server;
+        Robo_Client _client;
+
         Camera _camera;
+
+
         void drivePI();
         void testPI();
 
-        std::vector<int> test_ids;
-        int whatsgoingon;
 
-};
+
+        void telecommunication_mode();
+        void telecommunication_drive(std::string cmd);
+        void telecommunication_shoot(std::string cmd);
+        std::chrono::system_clock::time_point _time_telecom;
+        bool _second_shot;
 
 enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define STANDBY_MODE '`'

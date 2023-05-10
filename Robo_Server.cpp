@@ -21,6 +21,18 @@ void Robo_Server::start(int port, cv::Mat& im)
     th_server_run.detach();
 }
 
+std::vector<std::string> Robo_Server::get_cmds()
+{
+    get_cmd(_cmd);
+    return _cmds;
+}
+
+std::string Robo_Server::get_latest_cmd()
+{
+    get_cmds()
+    return _cmds[_cmds.size()-1];
+}
+
 void Robo_Server::start_server(int port, Robo_Server* ptr)
 {
     ptr->start(port);
@@ -36,8 +48,10 @@ void Robo_Server::run_server(cv::Mat& im, Robo_Server* ptr)
         frame = im;
         ptr->_lock.unlock();
         ptr->set_txim(frame);
+        /*
         ptr->get_cmd(cmds);
         ptr->_cmds = cmds;
+        */
     }
 }
 

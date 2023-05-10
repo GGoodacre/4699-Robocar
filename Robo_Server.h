@@ -12,7 +12,8 @@ class Robo_Server :
         ~Robo_Server();
 
         void start(int port, cv::Mat& im);
-        std::vector<std::string> get_cmds() { return _cmds; };
+        std::vector<std::string> get_cmds();
+        std::string get_latest_cmd();
         void lock() {_lock.lock(); };
         void unlock() {_lock.unlock(); };
 
