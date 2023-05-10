@@ -141,8 +141,8 @@ void Robocar::telecommunication_mode()
         _cmd = cmd;
     }
     std::cout << "Current CMD: " << _cmd << std::endl;
-    telecommunication_drive(_cmd.substr(0,4));
-    telecommunication_shoot(_cmd.substr(4,5));
+    telecommunication_drive(_cmd.substr(5,4));
+    telecommunication_shoot(_cmd.substr(0,5));
 
 }
 
@@ -197,42 +197,36 @@ void Robocar::telecommunication_shoot(std::string cmd)
 
     int x_change;
     int y_change;
-    if (cmd.substr(1,2) == "01")
+
+    if (cmd.substr(2,2) == "01")
     {
-        y_change = delta/100;
+        y_change = delta/2000;
     }
-    else if (cmd.substr(1,2) == "10")
+    else if (cmd.substr(2,2) == "10")
     {
-        y_change = -delta/100;
-    }
-    else
-    {
-        y_change = 0;
-    }
-    if (cmd.substr(3,2) == "01")
-    {
-        x_change = delta/100;
-    }
-    else if (cmd.substr(3,2) == "10")
-    {
-        x_change = -delta/100;
+        y_change = -delta/2000;
     }
     else
     {
         y_change = 0;
+    }
+    if (cmd.substr(0,2) == "01")
+    {
+        x_change = delta/2000;
+    }
+    else if (cmd.substr(0,2) == "10")
+    {
+        x_change = -delta/2000;
+    }
+    else
+    {
+        x_change = 0;
     }
 
     _gun.relative_move(x_change, y_change);
 
-    if(cmd.substr(0) == "1" || _second_shot)
+    if(cmd.substr(4) == "1")
     {
-        if(_gun.fire())
-        {
-            _second_shot = false;
-        }
-        else
-        {
-            _second_shot = true;
-        }
+        _gun.fire();
     }
 }

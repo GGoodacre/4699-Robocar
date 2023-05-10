@@ -20,4 +20,4 @@ class Drive
 
 };
 
-#define MAX_POWER 100
+#define MAX_POWER 60
