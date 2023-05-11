@@ -53,6 +53,10 @@ void Robo_Server::run_server(cv::Mat& im, Robo_Server* ptr)
     {
         ptr->_lock.lock();
         frame = im;
+        if(frame.empty() == false)
+        {
+            cv::cvtColor(frame,frame,cv::COLOR_RGB2GRAY);
+        }
         ptr->_lock.unlock();
         ptr->set_txim(frame);
         /*

@@ -2,13 +2,17 @@
 
 Robocar::Robocar() :
     _mode(STANDBY),
-    _cmd("000000000")
+    _cmd("000000000"),
+    _max_power(100),
+    _servo_speed(100)
 {
 
     //Initilize OPENCV Window
     cvui::init("Input");
     _input_box = cv::Mat::zeros(cv::Size(INPUT_WIDTH,INPUT_HEIGHT), CV_8UC3);
-    _server.start(PC_PORT, _pi_camera);
+    _cmd_server.start(PC_PORT, _pi_camera);
+    _server.start(IM_PORT, _pi_camera);
+    _client.start(ARENA_ADDRESS, ARENA_PORT)
 
 }
 
@@ -17,6 +21,9 @@ Robocar::Robocar() :
 ////////////////////////////////////////////////////////////////////////////
 void Robocar::update()
 {
+    _drive.set_max_power(_max_power);
+
+
     if(_key == STANDBY_MODE)
     {
         _mode = STANDBY;
@@ -55,6 +62,10 @@ void Robocar::draw()
 {
     _input_box = cv::Mat::zeros(cv::Size(INPUT_WIDTH,INPUT_HEIGHT), CV_8UC3);
     cv::imshow("Input", _input_box);
+    cvui::text(_input_box, 20, 20, "POWER: ");
+    cvui::trackbar(_input_box, 100, 5, 400,&_max_power, 0, 100);
+    cvui::text(_input_box, 20, 70, "SERVO: ");
+    cvui::trackbar(_input_box, 100, 55, 400,&_servo_speed, 100, 3000);
     return;
 }
 
@@ -63,7 +74,6 @@ void Robocar::draw()
 ////////////////////////////////////////////////////////////////////////////
 Robocar::~Robocar() {
 }
-
 
 void Robocar::drivePI() {
     switch(_key)
@@ -90,7 +100,12 @@ void Robocar::testPI()
     _server.lock();
     _pi_camera = _camera.capture_frame();
     _server.unlock();
-
+    cv::Mat test_image;
+    test_image = _client.get_image();
+    test_status = _client.get_status();
+    cv::imshow("Server", test_image);
+    std::cout << "Current Status: " << test_status << std::endl;
+    /*
     std::vector<int> ids;
     ids = _camera.get_ids();
     if(ids.size() > 0)
@@ -99,7 +114,7 @@ void Robocar::testPI()
         {
             bool match = false;
             for(int j = 0; j < test_ids.size(); j++)
-            {
+            {s
                 if(ids.at(i) == test_ids.at(j))
                 {
                     match = true;
@@ -111,6 +126,7 @@ void Robocar::testPI()
             }
         }
     }
+    */
 
     std::vector<std::string> cmds;
     cmds = _server.get_cmds();
@@ -131,7 +147,7 @@ void Robocar::telecommunication_mode()
     _server.unlock();
 
     std::string cmd;
-    cmd = _server.get_latest_cmd();
+    cmd = _cmd_server.get_latest_cmd();
     if (cmd == "EMPTY")
     {
         _cmd = _cmd;
@@ -197,14 +213,13 @@ void Robocar::telecommunication_shoot(std::string cmd)
 
     int x_change;
     int y_change;
-
     if (cmd.substr(2,2) == "01")
     {
-        y_change = delta/2000;
+        y_change = (delta*_servo_speed)/2000;
     }
     else if (cmd.substr(2,2) == "10")
     {
-        y_change = -delta/2000;
+        y_change = -(delta*_servo_speed)/2000;
     }
     else
     {
@@ -212,11 +227,11 @@ void Robocar::telecommunication_shoot(std::string cmd)
     }
     if (cmd.substr(0,2) == "01")
     {
-        x_change = delta/2000;
+        x_change = (delta*_servo_speed)/2000;
     }
     else if (cmd.substr(0,2) == "10")
     {
-        x_change = -delta/2000;
+        x_change = -(delta*_servo_speed)/2000;
     }
     else
     {
