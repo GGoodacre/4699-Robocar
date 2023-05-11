@@ -36,8 +36,12 @@ void Robo_Client::run_client(Robo_Client* ptr)
     while (ptr->_thread_exit == false)
     {
         ptr->tx_str("G 0");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         ptr->rx_str(ptr->_status);
         ptr->tx_str("G 1");
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        ptr->_lock.lock();
         ptr->rx_im(ptr->_im);
+        ptr->_lock.unlock();
     }
 }
