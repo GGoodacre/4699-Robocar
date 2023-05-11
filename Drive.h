@@ -9,6 +9,7 @@ class Drive
         void start();
         void stop();
         void set_direction(int angle);
+        void set_max_power(int power) { _max_power = power; };
 
     private:
 
@@ -16,6 +17,7 @@ class Drive
         Motor _motor_right;
 
         int _current_angle;
+        int _max_power;
 
 
 };

@@ -37,18 +37,24 @@ class Robocar :
 
         Camera _camera;
 
-
+        //TESTING
         void drivePI();
         void testPI();
 
 
-
+        //TELEOPERATION
         void telecommunication_mode();
         void telecommunication_drive(std::string cmd);
         void telecommunication_shoot(std::string cmd);
         std::chrono::system_clock::time_point _time_telecom;
         bool _second_shot;
         std::string _cmd;
+
+        //AUTOMATIC
+
+        //SETTINGS
+        _max_power;
+        _servo_speed;
 };
 enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define STANDBY_MODE '`'
