@@ -32,6 +32,7 @@ class Robocar :
         cv::Mat _input_box;
 
         Robo_Server _server;
+        Robo_Server _cmd_server;
         Robo_Client _client;
 
         Camera _camera;

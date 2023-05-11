@@ -8,7 +8,8 @@ Robocar::Robocar() :
     //Initilize OPENCV Window
     cvui::init("Input");
     _input_box = cv::Mat::zeros(cv::Size(INPUT_WIDTH,INPUT_HEIGHT), CV_8UC3);
-    _server.start(PC_PORT, _pi_camera);
+    _cmd_server.start(PC_PORT, cv::Mat::zeros(cv::Size(INPUT_WIDTH,INPUT_HEIGHT), CV_8UC3));
+    _server.start(IM_PORT, _pi_camera)
 
 }
 
@@ -131,7 +132,7 @@ void Robocar::telecommunication_mode()
     _server.unlock();
 
     std::string cmd;
-    cmd = _server.get_latest_cmd();
+    cmd = _cmd_server.get_latest_cmd();
     if (cmd == "EMPTY")
     {
         _cmd = _cmd;
