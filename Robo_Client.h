@@ -15,7 +15,8 @@ class Robo_Client :
         cv::Mat get_image();
         std::string get_status();
 
-
+        void lock() {_lock.lock(); };
+        void unlock() {_lock.unlock(); };
     private:
 
         bool _thread_exit;
@@ -26,7 +27,8 @@ class Robo_Client :
         std::string _status;
         cv::Mat _im;
         cv::Mat _resized;
+        std::mutex _lock;
 };
 
 #define ARENA_PORT 5001
-#define ARENA_ADDRESS "127.0.0.1"
+#define ARENA_ADDRESS "192.168.0.100"

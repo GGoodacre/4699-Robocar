@@ -12,7 +12,7 @@ Robocar::Robocar() :
     _input_box = cv::Mat::zeros(cv::Size(INPUT_WIDTH,INPUT_HEIGHT), CV_8UC3);
     _cmd_server.start(PC_PORT, _pi_camera);
     _server.start(IM_PORT, _pi_camera);
-    _client.start(ARENA_ADDRESS, ARENA_PORT)
+    _client.start(ARENA_ADDRESS, ARENA_PORT);
 
 }
 
@@ -61,11 +61,11 @@ void Robocar::update()
 void Robocar::draw()
 {
     _input_box = cv::Mat::zeros(cv::Size(INPUT_WIDTH,INPUT_HEIGHT), CV_8UC3);
-    cv::imshow("Input", _input_box);
     cvui::text(_input_box, 20, 20, "POWER: ");
     cvui::trackbar(_input_box, 100, 5, 400,&_max_power, 0, 100);
     cvui::text(_input_box, 20, 70, "SERVO: ");
     cvui::trackbar(_input_box, 100, 55, 400,&_servo_speed, 100, 3000);
+    cv::imshow("Input", _input_box);
     return;
 }
 
@@ -101,9 +101,15 @@ void Robocar::testPI()
     _pi_camera = _camera.capture_frame();
     _server.unlock();
     cv::Mat test_image;
+    std::string test_status;
+    _client.lock();
     test_image = _client.get_image();
+    _client.unlock();
     test_status = _client.get_status();
-    cv::imshow("Server", test_image);
+    if(test_image.empty() == false)
+    {
+        cv::imshow("Server", test_image);
+    }
     std::cout << "Current Status: " << test_status << std::endl;
     /*
     std::vector<int> ids;
@@ -144,10 +150,14 @@ void Robocar::telecommunication_mode()
 {
     _server.lock();
     _pi_camera = _camera.capture_frame();
+    _server.set_status(_client.get_status());
     _server.unlock();
 
+    _cmd_server.lock();
     std::string cmd;
     cmd = _cmd_server.get_latest_cmd();
+    _cmd_server.unlock();
+
     if (cmd == "EMPTY")
     {
         _cmd = _cmd;

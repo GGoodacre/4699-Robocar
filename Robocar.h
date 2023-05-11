@@ -53,10 +53,10 @@ class Robocar :
         //AUTOMATIC
 
         //SETTINGS
-        _max_power;
-        _servo_speed;
+        int _max_power;
+        int _servo_speed;
 };
 enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define STANDBY_MODE '`'
-#define INPUT_WIDTH 200
+#define INPUT_WIDTH 600
 #define INPUT_HEIGHT 200

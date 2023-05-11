@@ -1,5 +1,6 @@
 #pragma once
 #include "server.h"
+#include "cvui.h"
 #include <chrono>
 #include <vector>
 #include <thread>
@@ -16,6 +17,7 @@ class Robo_Server :
         std::string get_latest_cmd();
         void lock() {_lock.lock(); };
         void unlock() {_lock.unlock(); };
+        void set_status(std::string status) {_status = status; };
 
     protected:
         void start(int port) override { Server::start(port); };
@@ -28,6 +30,7 @@ class Robo_Server :
 
         std::mutex _lock;
         std::vector<std::string> _cmds;
+        std::string _status;
 
 
         bool _thread_exit;
