@@ -9,8 +9,8 @@ class Aruco
 
         std::vector<int> get_ids() { return _ids; };
         std::vector<std::vector<cv::Point2f>> get_corners() { return _corners; };
-        void find_markers();
 
+        void find_markers();
         void draw_markers();
 
     protected:
