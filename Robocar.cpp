@@ -266,8 +266,10 @@ void Robocar::telecommunication_shoot(std::string cmd)
 
 void Robocar::automatic_mode()
 {
+    _client.lock();
     std::string status = _client.get_status();
     cv::Mat client_image = _client.get_image();
+    _client.unlock();
 
     _server.lock();
     _pi_camera = _camera.capture_frame();
@@ -423,7 +425,6 @@ void Robocar::automatic_shoot(cv::Mat im)
         }
     }
 
-    _camera.find_markers();
     std::vector<int> ids = _camera.get_ids();
     int target_found = -1;
 
@@ -494,7 +495,7 @@ void Robocar::automatic_shoot(cv::Mat im)
             }
             angle_x = (marker_angle - car_angle) * (180/M_PI);
             angle_y = 10;
-            _gun.absolute_move(_gun.degree2servo(angle_x),_gun.degree2servo(angle_y));
+            _gun.absolute_move(_gun.degree2servo(angle_x),_gun.degree2servo(angle_y)-90);
         }
     }
     else
@@ -502,7 +503,7 @@ void Robocar::automatic_shoot(cv::Mat im)
         std::vector<std::vector<cv::Point2f>> corners = _camera.get_corners();
         angle_x = angle_change_x(corners.at(target_found));
         angle_y = angle_change_y(corners.at(target_found));
-        _gun.auto_move(angle_x, angle_y);
+        _gun.auto_move(angle_x, angle_y-90);
         if(angle_x < 5)
         {
             _gun.fire();
@@ -543,7 +544,7 @@ double Robocar::angle_change_y(std::vector<cv::Point2f> corners)
     }
     else
     {
-        return pow(COEFF_A1*d,2) + COEFF_B1*d + COEFF_C1;
+        //return pow(COEFF_A1*d,2) + COEFF_B1*d + COEFF_C1;
         return 10;
     }
 

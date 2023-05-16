@@ -51,6 +51,8 @@ void Robo_Gun::auto_move(double x_change, double absolute_y)
     if(_x > 2500) _x = 2500;
     if(_x < 500) _x = 500;
     _y = degree2servo(absolute_y);
+    if(_y > 2500) _y = 2500;
+    if(_y < 500) _y = 500;
     _servo_X.set_value(_x);
     _servo_Y.set_value(_y);
 }
