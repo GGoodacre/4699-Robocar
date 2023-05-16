@@ -4,7 +4,7 @@
 double distance(cv::Point2f a, cv::Point2f b)
 {
     double dist;
-    dist = ((a.x-b.x)**2+(a.y-b.y)**2)**0.5;
+    dist = pow(pow((a.x-b.x),2)+pow((a.y-b.y),2),0.5);
     return dist;
 }
 

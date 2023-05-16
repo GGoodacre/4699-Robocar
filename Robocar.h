@@ -76,18 +76,18 @@ enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define CAR_MARKER 32
 
 //Angle calculations
-#define MAX_DISTANCE
-#define ANGLE_MAXDISTANCE 
-#define ANGLE0_DISTANCE
+#define MAX_DISTANCE 2
+#define ANGLE_MAXDISTANCE 2
+#define ANGLE0_DISTANCE 2
 
-#define COEFF_A1 
-#define COEFF_B1
-#define COEFF_C1
+#define COEFF_A1 2
+#define COEFF_B1 2
+#define COEFF_C1 2
 
-#define COEFF_A2
-#define COEFF_B2
-#define COEFF_C2
+#define COEFF_A2 2
+#define COEFF_B2 2
+#define COEFF_C2 2
 
 #define FOCAL_LENGTH 3.04
-#define REAL_HEIGHT 
+#define REAL_HEIGHT 2
 #define SENSOR_HEIGHT 2.76

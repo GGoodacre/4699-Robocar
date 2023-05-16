@@ -73,6 +73,8 @@
 		<Unit filename="server.h" />
 		<Unit filename="stdafx.cpp" />
 		<Unit filename="stdafx.h" />
+		<Unit filename="usefulfunctions.cpp" />
+		<Unit filename="usefulfunctions.h" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>
