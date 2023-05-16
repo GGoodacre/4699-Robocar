@@ -1,4 +1,5 @@
 #include "Robocar.h"
+#include "usefulfunctions.h"
 
 Robocar::Robocar() :
     _mode(STANDBY),
@@ -35,10 +36,15 @@ void Robocar::update()
             {
                 _mode = PI;
             }
-            if(_key == 'm') // ENTER TELECOMMUNICATION MODE
+            else if(_key == 'm') // ENTER TELECOMMUNICATION MODE
             {
                 _mode = MANUAL;
                 _time_telecom = std::chrono::system_clock::now();
+            }
+            else if(_key == 'a')
+            {
+                _mode = AUTO;
+                _state = 0;
             }
             break;
         case PI:
@@ -49,6 +55,7 @@ void Robocar::update()
             telecommunication_mode();
             break;
         case AUTO:
+            automatic_mode();
             break;
     }
     return;
@@ -254,4 +261,215 @@ void Robocar::telecommunication_shoot(std::string cmd)
     {
         _gun.fire();
     }
+}
+
+void Robocar::automatic_mode()
+{
+    std::string status = _client.get_status();
+    cv::Mat client_image = _client.get_image();
+
+    _server.lock();
+    _pi_camera = _camera.capture_frame();
+    _server.unlock();
+
+    automatic_drive(client_image);
+    automatic_shoot(client_image);
+}
+
+void Robocar::automatic_drive(cv::Mat im)
+{
+    cv::Point2f desired_location;
+    Aruco aruco = Aruco(im);
+    aruco.find_markers();
+
+    std::vector<int> ids = aruco.get_ids();
+
+    int car = -1;
+
+    for(int i = 0; i < ids.size(); i++) {
+        if(ids.at(i) == CAR_MARKER)
+        {
+            car = i;
+            break;
+        }
+    }
+    std::vector<cv::Point2f> car_location = aruco.get_corners().at(car);
+    cv::Point2f car_center = cv::Point2f((car_location.at(0).x + car_location.at(1).x)/2,(car_location.at(0).y + car_location.at(2).y)/2);
+    double car_angle = atan2((car_location.at(0).y - car_location.at(2).y),(car_location.at(0).x-car_location.at(2).x)) * (180/M_PI);
+
+
+    switch(_state)
+    {
+        case(2):
+        {
+            desired_location = cv::Point2f(200, 3000);
+        }
+        case(3):
+        {
+            desired_location = cv::Point2f(2000, 3000);
+        }
+        case(4):
+        {
+            desired_location = cv::Point2f(3800, 3800);
+        }
+        default:
+        {
+            desired_location = car_center;
+        }
+    }
+
+    if(distance(desired_location, car_center) < 10)
+    {
+        _drive.stop();
+        return;
+    }
+    else
+    {
+        double a = angle(car_center, desired_location);
+        _drive.set_direction(car_angle - a);
+    }
+}
+
+
+void Robocar::automatic_shoot(cv::Mat im)
+{
+    int desired_marker;
+    int angle_x;
+    int angle_y;
+
+    switch(_state)
+    {
+        case(0):
+        {
+            desired_marker = NORTH_MARKER;
+            break;
+        }
+        case(1):
+        {
+            desired_marker = EAST_MARKER;
+            break;
+        }
+        case(2):
+        {
+            desired_marker = WEST_MARKER;
+            break;
+        }
+        case(3):
+        {
+            desired_marker = SOUTH_MARKER;
+            break;
+        }
+        default:
+        {
+            desired_marker = -1;
+            break;
+        }
+    }
+
+    _camera.find_markers();
+    std::vector<int> ids = _camera.get_ids();
+    int target_found = -1;
+
+    for(int i = 0; i < ids.size(); i++) {
+        if(ids.at(i) == desired_marker)
+        {
+            target_found = i;
+            break;
+        }
+    }
+
+    if(target_found == -1)
+    {
+
+        Aruco top_down = Aruco(im);
+
+        top_down.find_markers();
+        std::vector<int> car_ids = top_down.get_ids();
+
+        int car = -1;
+
+        for(int i = 0; i < car_ids.size(); i++) {
+            if(car_ids.at(i) == CAR_MARKER)
+            {
+                car = i;
+                break;
+            }
+        }
+        std::vector<std::vector<cv::Point2f>> corners = top_down.get_corners();
+        std::vector<cv::Point2f> car_marker = corners.at(car);
+        double car_angle = atan((car_marker.at(0).y-car_marker.at(2).y)/(car_marker.at(0).x - car_marker.at(2).x));
+        double marker_angle;
+        switch(_state)
+        {
+            case(0):
+            {
+                marker_angle = atan(car_marker.at(0).y/(car_marker.at(0).x - im.size().width/2));
+                break;
+            }
+            case(1):
+            {
+                marker_angle = atan((car_marker.at(0).y - im.size().height/2)/(car_marker.at(0).x - im.size().width));
+                break;
+            }
+            case(2):
+            {
+                marker_angle = atan((car_marker.at(0).y - im.size().height/2)/(car_marker.at(0).x));
+                break;
+            }
+            case(3):
+            {
+                marker_angle = atan((car_marker.at(0).y - im.size().height)/(car_marker.at(0).x - im.size().width/2));
+                break;
+            }
+            default:
+            {
+                marker_angle = car_angle;
+                break;
+            }
+        }
+        angle_x = (marker_angle - car_angle) * (180/M_PI);
+        angle_y = 10;
+    }
+    else
+    {
+        std::vector<std::vector<cv::Point2f>> corners = _camera.get_corners();
+        angle_x = angle_change_x(corners.at(target_found));
+        angle_y = angle_change_y(corners.at(target_found));
+    }
+}
+
+int Robocar::angle_change_x(std::vector<cv::Point2f> corners)
+{
+    double x = (corners.at(0).x + corners.at(1).x + corners.at(2).x + corners.at(3).x)/4;
+    double y = (corners.at(0).y + corners.at(1).y + corners.at(2).y + corners.at(3).y)/4;
+
+    if(x == 0)
+    {
+        return 0;
+    }
+    else
+    {
+        double angle_radians = atan((y - _pi_camera.size().height) / (x - _pi_camera.size().width / 2));
+        return angle_radians*(180/M_PI);
+    }
+}
+
+int Robocar::angle_change_y(std::vector<cv::Point2f> corners)
+{
+    double h = abs(corners.at(0).y * corners.at(1).y - corners.at(2).y * corners.at(3).y)/2;
+    double d = (FOCAL_LENGTH*REAL_HEIGHT*h)/(_pi_camera.size().height*SENSOR_HEIGHT)/1000;
+
+    if(d < ANGLE0_DISTANCE)
+    {
+        return pow(COEFF_A2*d,2) + COEFF_B2*d + COEFF_C2;
+    }
+    else if(d > MAX_DISTANCE)
+    {
+        return ANGLE_MAXDISTANCE;
+    }
+    else
+    {
+        return pow(COEFF_A1*d,2) + COEFF_B1*d + COEFF_C1;
+    }
+
 }

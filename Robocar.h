@@ -51,12 +51,43 @@ class Robocar :
         std::string _cmd;
 
         //AUTOMATIC
+        void automatic_mode();
+        void automatic_drive(cv::Mat im);
+        void automatic_shoot(cv::Mat im);
+        int _state;
+        int angle_change_x(std::vector<cv::Point2f> corners);
+        int angle_change_y(std::vector<cv::Point2f> corners);
 
         //SETTINGS
         int _max_power;
         int _servo_speed;
 };
+
 enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define STANDBY_MODE '`'
 #define INPUT_WIDTH 600
 #define INPUT_HEIGHT 200
+
+//ARUCO MARKERS
+#define WEST_MARKER 21
+#define NORTH_MARKER 22
+#define EAST_MARKER 23
+#define SOUTH_MARKER 24
+#define CAR_MARKER 32
+
+//Angle calculations
+#define MAX_DISTANCE 2
+#define ANGLE_MAXDISTANCE 2
+#define ANGLE0_DISTANCE 2
+
+#define COEFF_A1 2
+#define COEFF_B1 2
+#define COEFF_C1 2
+
+#define COEFF_A2 2
+#define COEFF_B2 2
+#define COEFF_C2 2
+
+#define FOCAL_LENGTH 3.04
+#define REAL_HEIGHT 2
+#define SENSOR_HEIGHT 2.76

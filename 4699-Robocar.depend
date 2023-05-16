@@ -659,7 +659,7 @@
 	"Robocar.h"
 	"cvui.h"
 
-1683828044 /home/ggoodacre/Documents/4699-Robocar/Robocar.h
+1684251543 /home/ggoodacre/Documents/4699-Robocar/Robocar.h
 	"CBase4618.h"
 	"Motor.h"
 	"cvui.h"
@@ -787,7 +787,7 @@
 1683828387 source:/home/ggoodacre/Documents/4699-Robocar/Robo_Server.cpp
 	"Robo_Server.h"
 
-1683214639 /home/ggoodacre/Documents/4699-Robocar/Aruco.h
+1684250916 /home/ggoodacre/Documents/4699-Robocar/Aruco.h
 	"stdafx.h"
 
 1683214639 source:/home/ggoodacre/Documents/4699-Robocar/Aruco.cpp
@@ -799,10 +799,17 @@
 1683678538 /home/ggoodacre/Documents/4699-Robocar/Servo.h
 	"Component.h"
 
-1683826190 source:/home/ggoodacre/Documents/4699-Robocar/Robo_Gun.cpp
+1683828993 source:/home/ggoodacre/Documents/4699-Robocar/Robo_Gun.cpp
 	"Robo_Gun.h"
 	<thread>
 
 1683678538 source:/home/ggoodacre/Documents/4699-Robocar/Servo.cpp
 	"Servo.h"
+
+1684251145 source:/home/ggoodacre/Documents/4699-Robocar/usefulfunctions.cpp
+	"usefulfunctions.h"
+	<math.h>
+
+1684250916 /home/ggoodacre/Documents/4699-Robocar/usefulfunctions.h
+	<opencv2/opencv.hpp>
 
