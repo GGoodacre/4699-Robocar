@@ -69,7 +69,8 @@ enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define INPUT_HEIGHT 200
 
 //ARUCO MARKERS
-#define WEST_MARKER 21
+#define WEST_MARKER 20
+//21
 #define NORTH_MARKER 22
 #define EAST_MARKER 27
 #define SOUTH_MARKER 23
@@ -89,5 +90,5 @@ enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define COEFF_C2 2
 
 #define FOCAL_LENGTH 3.04
-#define REAL_HEIGHT 2
+#define REAL_HEIGHT 25.4
 #define SENSOR_HEIGHT 2.76

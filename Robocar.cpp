@@ -273,7 +273,7 @@ void Robocar::automatic_mode()
     _pi_camera = _camera.capture_frame();
     _server.unlock();
 
-    if(status.length() > 12)
+    if(status.length() == -1)
     {
         switch(_state)
         {
@@ -312,7 +312,7 @@ void Robocar::automatic_mode()
         }
     }
 
-    automatic_drive(client_image);
+    //automatic_drive(client_image);
     automatic_shoot(client_image);
 }
 
@@ -329,12 +329,14 @@ void Robocar::automatic_drive(cv::Mat im)
 
 
     int car = -1;
-
-    for(int i = 0; i < ids.size(); i++) {
-        if(ids.at(i) == CAR_MARKER)
-        {
-            car = i;
-            break;
+    if(ids.size() > 0)
+    {
+        for(int i = 0; i < ids.size(); i++) {
+            if(ids.at(i) == CAR_MARKER)
+            {
+                car = i;
+                break;
+            }
         }
     }
     std::vector<cv::Point2f> car_location = aruco.get_corners().at(car);
@@ -425,11 +427,14 @@ void Robocar::automatic_shoot(cv::Mat im)
     std::vector<int> ids = _camera.get_ids();
     int target_found = -1;
 
-    for(int i = 0; i < ids.size(); i++) {
-        if(ids.at(i) == desired_marker)
-        {
-            target_found = i;
-            break;
+    if (ids.size() > 0)
+    {
+        for(int i = 0; i < ids.size(); i++) {
+            if(ids.at(i) == desired_marker)
+            {
+                target_found = i;
+                break;
+            }
         }
     }
 
@@ -443,48 +448,54 @@ void Robocar::automatic_shoot(cv::Mat im)
 
         int car = -1;
 
-        for(int i = 0; i < car_ids.size(); i++) {
-            if(car_ids.at(i) == CAR_MARKER)
-            {
-                car = i;
-                break;
-            }
-        }
-        std::vector<std::vector<cv::Point2f>> corners = top_down.get_corners();
-        std::vector<cv::Point2f> car_marker = corners.at(car);
-        double car_angle = atan((car_marker.at(0).y-car_marker.at(2).y)/(car_marker.at(0).x - car_marker.at(2).x));
-        double marker_angle;
-        switch(_state)
+        if(car_ids.size() > 0)
         {
-            case(0):
-            {
-                marker_angle = atan2(car_marker.at(0).y,(car_marker.at(0).x - im.size().width/2));
-                break;
-            }
-            case(1):
-            {
-                marker_angle = atan2((car_marker.at(0).y - im.size().height/2),(car_marker.at(0).x - im.size().width));
-                break;
-            }
-            case(2):
-            {
-                marker_angle = atan2((car_marker.at(0).y - im.size().height/2),(car_marker.at(0).x));
-                break;
-            }
-            case(3):
-            {
-                marker_angle = atan2((car_marker.at(0).y - im.size().height),(car_marker.at(0).x - im.size().width/2));
-                break;
-            }
-            default:
-            {
-                marker_angle = car_angle;
-                break;
+            for(int i = 0; i < car_ids.size(); i++) {
+                if(car_ids.at(i) == CAR_MARKER)
+                {
+                    car = i;
+                    break;
+                }
             }
         }
-        angle_x = (marker_angle - car_angle) * (180/M_PI);
-        angle_y = 10;
-        _gun.absolute_move(_gun.degree2servo(angle_x),_gun.degree2servo(angle_y));
+        if(car != -1)
+        {
+            std::vector<std::vector<cv::Point2f>> corners = top_down.get_corners();
+            std::vector<cv::Point2f> car_marker = corners.at(car);
+            double car_angle = atan((car_marker.at(0).y-car_marker.at(2).y)/(car_marker.at(0).x - car_marker.at(2).x));
+            double marker_angle;
+            switch(_state)
+            {
+                case(0):
+                {
+                    marker_angle = atan2(car_marker.at(0).y,(car_marker.at(0).x - im.size().width/2));
+                    break;
+                }
+                case(1):
+                {
+                    marker_angle = atan2((car_marker.at(0).y - im.size().height/2),(car_marker.at(0).x - im.size().width));
+                    break;
+                }
+                case(2):
+                {
+                    marker_angle = atan2((car_marker.at(0).y - im.size().height/2),(car_marker.at(0).x));
+                    break;
+                }
+                case(3):
+                {
+                    marker_angle = atan2((car_marker.at(0).y - im.size().height),(car_marker.at(0).x - im.size().width/2));
+                    break;
+                }
+                default:
+                {
+                    marker_angle = car_angle;
+                    break;
+                }
+            }
+            angle_x = (marker_angle - car_angle) * (180/M_PI);
+            angle_y = 10;
+            _gun.absolute_move(_gun.degree2servo(angle_x),_gun.degree2servo(angle_y));
+        }
     }
     else
     {
@@ -520,10 +531,11 @@ double Robocar::angle_change_y(std::vector<cv::Point2f> corners)
 {
     double h = abs(corners.at(0).y * corners.at(1).y - corners.at(2).y * corners.at(3).y)/2;
     double d = (FOCAL_LENGTH*REAL_HEIGHT*h)/(_pi_camera.size().height*SENSOR_HEIGHT)/1000;
-
+    std::cout << "Distance: " << std::to_string(d) << std::endl;
     if(d < ANGLE0_DISTANCE)
     {
-        return pow(COEFF_A2*d,2) + COEFF_B2*d + COEFF_C2;
+        //return pow(COEFF_A2*d,2) + COEFF_B2*d + COEFF_C2;
+        return 10;
     }
     else if(d > MAX_DISTANCE)
     {
@@ -532,6 +544,7 @@ double Robocar::angle_change_y(std::vector<cv::Point2f> corners)
     else
     {
         return pow(COEFF_A1*d,2) + COEFF_B1*d + COEFF_C1;
+        return 10;
     }
 
 }

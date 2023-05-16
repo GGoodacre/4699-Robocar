@@ -57,9 +57,9 @@ void Robo_Gun::auto_move(double x_change, double absolute_y)
 
 void Robo_Gun::fire_process(Robo_Gun *ptr)
 {
-    ptr->_servo_TRIGGER.set_value(1800);
+    ptr->_servo_TRIGGER.set_value(1000);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
-    ptr->_servo_TRIGGER.set_value(1200);
+    ptr->_servo_TRIGGER.set_value(2000);
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
     ptr->_firing = false;
 }
