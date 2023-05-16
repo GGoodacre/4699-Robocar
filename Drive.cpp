@@ -101,14 +101,14 @@ void Drive::set_direction(int angle)
     {
         _motor_right.set_direction(REVERSE);
         _motor_right.set_power(_max_power*0.7);
-        _motor_left.set_direction(FORWARD)
+        _motor_left.set_direction(FORWARD);
         _motor_left.set_power(_max_power*0.7);
     }
     else if(angle < -45 && angle > -135)
     {
         _motor_right.set_direction(FORWARD);
         _motor_right.set_power(_max_power*0.7);
-        _motor_left.set_direction(REVERSE)
+        _motor_left.set_direction(REVERSE);
         _motor_left.set_power(_max_power*0.7);
     }
     return;

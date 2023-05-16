@@ -324,11 +324,10 @@ void Robocar::automatic_drive(cv::Mat im)
 
     std::vector<int> ids = aruco.get_ids();
 
-    cv::Rect Barrier_1 = Rect(600, 3200, 100, 800);
-    cv::Rect Barrier_2 = Rect(3300, 3200, 100, 800);
+    cv::RotatedRect Barrier_1 = cv::RotatedRect(cv::Point2f(600,4000),cv::Point2f(600,3200),cv::Point2f(800,3200));
+    cv::RotatedRect Barrier_2 = cv::RotatedRect(cv::Point2f(3400,4000),cv::Point2f(3400,3200),cv::Point2f(3200,3200));
 
 
- b
     int car = -1;
 
     for(int i = 0; i < ids.size(); i++) {
@@ -373,9 +372,9 @@ void Robocar::automatic_drive(cv::Mat im)
         {
             double a = angle(car_center, desired_location);
             cv::Point2f middle_point = cv::Point2f((car_center.x+desired_location.x)/2,(car_center.y+desired_location.y)/2);
-
+            cv::_OutputArray output;
             cv::RotatedRect car_path = cv::RotatedRect(middle_point, cv::Size2f(200,distance(desired_location, car_center)), a);
-            if ((car_path & Barrier_1) == 0 && (car_path & Barrier_2) == 0)
+            if (cv::rotatedRectangleIntersection(car_path,Barrier_1,output) == cv::INTERSECT_NONE && cv::rotatedRectangleIntersection(car_path,Barrier_2,output) == cv::INTERSECT_NONE)
             {
                 _drive.set_direction(car_angle - a);
             }

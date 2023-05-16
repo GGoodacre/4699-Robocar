@@ -57,7 +57,8 @@ void Robo_Server::run_server(cv::Mat& im, Robo_Server* ptr)
         {
             cv::cvtColor(frame,frame,cv::COLOR_RGB2GRAY);
             cvui::text(frame, 20, 20, ptr->_status);
-            cvui::text(frame, 20, 60, ptr->_y);
+            std::string str = std::to_string(ptr->_y);
+            cvui::text(frame, 20, 60, str);
         }
         ptr->_lock.unlock();
         ptr->set_txim(frame);

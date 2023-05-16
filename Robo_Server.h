@@ -18,7 +18,7 @@ class Robo_Server :
         void lock() {_lock.lock(); };
         void unlock() {_lock.unlock(); };
         void set_status(std::string status) {_status = status; };
-        void set_y(std::string y) { _y = y};
+        void set_y(int y) { _y = y; };
 
     protected:
         void start(int port) override { Server::start(port); };
@@ -32,7 +32,7 @@ class Robo_Server :
         std::mutex _lock;
         std::vector<std::string> _cmds;
         std::string _status;
-        std::string _y;
+        int _y;
 
 
         bool _thread_exit;
