@@ -14,8 +14,9 @@
 #include <chrono>
 #include <bitset>
 
-std::string server_ip = "192.168.137.79";
+std::string server_ip = "192.168.137.86";
 int server_port = 4001;
+int im_port = 6001;
 
 float timeout_start;
 
@@ -26,7 +27,7 @@ void send_command(CClient &client, std::string cmd)
 
 	client.tx_str(cmd);
 	std::cout << "\nClient Tx: " << cmd;
-	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	std::this_thread::sleep_for(std::chrono::milliseconds(40));
 
 	if (cmd == "im")
 	{
@@ -52,6 +53,7 @@ void send_command(CClient &client, std::string cmd)
 			}
 		}
 	}
+	/*
 	else
 	{
 		if (client.rx_str(str) == true)
@@ -70,15 +72,18 @@ void send_command(CClient &client, std::string cmd)
 			}
 		}
 	}
+	*/
 }
 
 int main(int argc, char* argv[])
 {
 	CClient client;
+	CClient im_client;
 	int cmd = -1;
 
 	timeout_start = cv::getTickCount();
 	client.connect_socket(server_ip, server_port);
+	im_client.connect_socket(server_ip, im_port);
 
 	std::string rx_ack;
 	std::bitset <9> keystate;
@@ -86,7 +91,7 @@ int main(int argc, char* argv[])
 	{
 		keystate.reset();
 		
-		send_command(client, "im");
+		send_command(im_client, "im");
 		if (GetKeyState('W') & 0x8000)
 		{
 			keystate[0] = 1;

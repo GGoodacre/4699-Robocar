@@ -37,11 +37,11 @@ void Drive::set_direction(int angle)
 {
     float sin_power;
 
-    if(angle >= 0 && angle <= 90)
+    if(angle >= 0 && angle <= 45)
     {
         _motor_left.set_direction(FORWARD);
         _motor_left.set_power(_max_power);
-        sin_power = _max_power*cos(angle*M_PI*2/180);
+        sin_power = _max_power*cos(angle*M_PI*4/180);
         if(sin_power < 0)
         {
             _motor_right.set_direction(REVERSE);
@@ -52,11 +52,11 @@ void Drive::set_direction(int angle)
         }
         _motor_right.set_power(abs(sin_power));
     }
-    else if(angle >= -90 && angle < 0)
+    else if(angle >= -45 && angle < 0)
     {
         _motor_right.set_direction(FORWARD);
         _motor_right.set_power(_max_power);
-        sin_power = _max_power*cos(angle*M_PI*2/180);
+        sin_power = _max_power*cos(angle*M_PI*4/180);
         if(sin_power < 0)
         {
             _motor_left.set_direction(REVERSE);
@@ -67,11 +67,11 @@ void Drive::set_direction(int angle)
         }
         _motor_right.set_power(abs(sin_power));
     }
-    else if(angle > 90 && angle <= 180)
+    else if(angle >= 135 && angle <= 180)
     {
         _motor_left.set_direction(REVERSE);
         _motor_left.set_power(_max_power);
-        sin_power = _max_power*cos(angle*M_PI*2/180 - M_PI);
+        sin_power = _max_power*cos(angle*M_PI*4/180 - M_PI);
         if(sin_power < 0)
         {
             _motor_right.set_direction(REVERSE);
@@ -82,11 +82,11 @@ void Drive::set_direction(int angle)
         }
         _motor_right.set_power(abs(sin_power));
     }
-    else if(angle > -180 && angle < -90)
+    else if(angle > -180 && angle <= -135)
     {
         _motor_right.set_direction(REVERSE);
         _motor_right.set_power(_max_power);
-        sin_power = _max_power*cos(angle*M_PI*2/180 - M_PI);
+        sin_power = _max_power*cos(angle*M_PI*4/180 - M_PI);
         if(sin_power < 0)
         {
             _motor_left.set_direction(REVERSE);
@@ -96,6 +96,20 @@ void Drive::set_direction(int angle)
             _motor_left.set_direction(FORWARD);
         }
         _motor_right.set_power(abs(sin_power));
+    }
+    else if(angle > 45 && angle < 135)
+    {
+        _motor_right.set_direction(REVERSE);
+        _motor_right.set_power(_max_power*0.7);
+        _motor_left.set_direction(FORWARD)
+        _motor_left.set_power(_max_power*0.7);
+    }
+    else if(angle < -45 && angle > -135)
+    {
+        _motor_right.set_direction(FORWARD);
+        _motor_right.set_power(_max_power*0.7);
+        _motor_left.set_direction(REVERSE)
+        _motor_left.set_power(_max_power*0.7);
     }
     return;
 }

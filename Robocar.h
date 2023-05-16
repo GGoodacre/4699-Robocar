@@ -71,8 +71,8 @@ enum {STANDBY = 0, PI, MANUAL, AUTO};
 //ARUCO MARKERS
 #define WEST_MARKER 21
 #define NORTH_MARKER 22
-#define EAST_MARKER 23
-#define SOUTH_MARKER 24
+#define EAST_MARKER 27
+#define SOUTH_MARKER 23
 #define CAR_MARKER 32
 
 //Angle calculations

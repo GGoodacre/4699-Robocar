@@ -9,6 +9,10 @@ class Robo_Gun
         bool fire();
         void relative_move(int x, int y);
         void absolute_move(int x, int y);
+        void auto_move(double x_change, double absolute_y);
+        int degree2servo(double degree);
+        int get_y() {return _y; };
+
     private:
 
         Servo _servo_X;

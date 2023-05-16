@@ -45,6 +45,16 @@ void Robo_Gun::absolute_move(int x, int y)
     _servo_Y.set_value(_y);
 }
 
+void Robo_Gun::auto_move(double x_change, double absolute_y)
+{
+    _x = _x + degree2servo(x_change);
+    if(_x > 2500) _x = 2500;
+    if(_x < 500) _x = 500;
+    _y = degree2servo(absolute_y);
+    _servo_X.set_value(_x);
+    _servo_Y.set_value(_y);
+}
+
 void Robo_Gun::fire_process(Robo_Gun *ptr)
 {
     ptr->_servo_TRIGGER.set_value(1800);
@@ -54,3 +64,7 @@ void Robo_Gun::fire_process(Robo_Gun *ptr)
     ptr->_firing = false;
 }
 
+int Robo_Gun::degree2servo(double degree)
+{
+    return int(degree*(2000/90) + 1500);
+}

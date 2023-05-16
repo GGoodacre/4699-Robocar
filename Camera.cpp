@@ -25,6 +25,7 @@ cv::Mat Camera::capture_frame()
         if(_Aruco_ON)
         {
             find_markers();
+            draw_markers();
         }
         cv::imshow("Image", frame);
         return frame;

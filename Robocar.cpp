@@ -5,7 +5,7 @@ Robocar::Robocar() :
     _mode(STANDBY),
     _cmd("000000000"),
     _max_power(100),
-    _servo_speed(100)
+    _servo_speed(5)
 {
 
     //Initilize OPENCV Window
@@ -71,7 +71,7 @@ void Robocar::draw()
     cvui::text(_input_box, 20, 20, "POWER: ");
     cvui::trackbar(_input_box, 100, 5, 400,&_max_power, 0, 100);
     cvui::text(_input_box, 20, 70, "SERVO: ");
-    cvui::trackbar(_input_box, 100, 55, 400,&_servo_speed, 100, 3000);
+    cvui::trackbar(_input_box, 100, 55, 400,&_servo_speed, 0, 20);
     cv::imshow("Input", _input_box);
     return;
 }
@@ -158,6 +158,7 @@ void Robocar::telecommunication_mode()
     _server.lock();
     _pi_camera = _camera.capture_frame();
     _server.set_status(_client.get_status());
+    _server.set_y(_gun.get_y());
     _server.unlock();
 
     _cmd_server.lock();
@@ -272,6 +273,45 @@ void Robocar::automatic_mode()
     _pi_camera = _camera.capture_frame();
     _server.unlock();
 
+    if(status.length() > 12)
+    {
+        switch(_state)
+        {
+            case 0:
+            {
+                if(status[6] == 1)
+                {
+                    _state++;
+                }
+                break;
+            }
+            case 1:
+            {
+                if(status[8] == 1)
+                {
+                    _state++;
+                }
+                break;
+            }
+            case 2:
+            {
+                if(status[10] == 1)
+                {
+                    _state++;
+                }
+                break;
+            }
+            case 3:
+            {
+                if(status[12] == 1)
+                {
+                    _state++;
+                }
+                break;
+            }
+        }
+    }
+
     automatic_drive(client_image);
     automatic_shoot(client_image);
 }
@@ -284,6 +324,11 @@ void Robocar::automatic_drive(cv::Mat im)
 
     std::vector<int> ids = aruco.get_ids();
 
+    cv::Rect Barrier_1 = Rect(600, 3200, 100, 800);
+    cv::Rect Barrier_2 = Rect(3300, 3200, 100, 800);
+
+
+ b
     int car = -1;
 
     for(int i = 0; i < ids.size(); i++) {
@@ -325,17 +370,28 @@ void Robocar::automatic_drive(cv::Mat im)
     }
     else
     {
-        double a = angle(car_center, desired_location);
-        _drive.set_direction(car_angle - a);
+        {
+            double a = angle(car_center, desired_location);
+            cv::Point2f middle_point = cv::Point2f((car_center.x+desired_location.x)/2,(car_center.y+desired_location.y)/2);
+
+            cv::RotatedRect car_path = cv::RotatedRect(middle_point, cv::Size2f(200,distance(desired_location, car_center)), a);
+            if ((car_path & Barrier_1) == 0 && (car_path & Barrier_2) == 0)
+            {
+                _drive.set_direction(car_angle - a);
+            }
+            else
+            {
+                _drive.set_direction(0);
+            }
+        }
     }
 }
-
 
 void Robocar::automatic_shoot(cv::Mat im)
 {
     int desired_marker;
-    int angle_x;
-    int angle_y;
+    double angle_x;
+    double angle_y;
 
     switch(_state)
     {
@@ -403,22 +459,22 @@ void Robocar::automatic_shoot(cv::Mat im)
         {
             case(0):
             {
-                marker_angle = atan(car_marker.at(0).y/(car_marker.at(0).x - im.size().width/2));
+                marker_angle = atan2(car_marker.at(0).y,(car_marker.at(0).x - im.size().width/2));
                 break;
             }
             case(1):
             {
-                marker_angle = atan((car_marker.at(0).y - im.size().height/2)/(car_marker.at(0).x - im.size().width));
+                marker_angle = atan2((car_marker.at(0).y - im.size().height/2),(car_marker.at(0).x - im.size().width));
                 break;
             }
             case(2):
             {
-                marker_angle = atan((car_marker.at(0).y - im.size().height/2)/(car_marker.at(0).x));
+                marker_angle = atan2((car_marker.at(0).y - im.size().height/2),(car_marker.at(0).x));
                 break;
             }
             case(3):
             {
-                marker_angle = atan((car_marker.at(0).y - im.size().height)/(car_marker.at(0).x - im.size().width/2));
+                marker_angle = atan2((car_marker.at(0).y - im.size().height),(car_marker.at(0).x - im.size().width/2));
                 break;
             }
             default:
@@ -429,16 +485,23 @@ void Robocar::automatic_shoot(cv::Mat im)
         }
         angle_x = (marker_angle - car_angle) * (180/M_PI);
         angle_y = 10;
+        _gun.absolute_move(_gun.degree2servo(angle_x),_gun.degree2servo(angle_y));
     }
     else
     {
         std::vector<std::vector<cv::Point2f>> corners = _camera.get_corners();
         angle_x = angle_change_x(corners.at(target_found));
         angle_y = angle_change_y(corners.at(target_found));
+        _gun.auto_move(angle_x, angle_y);
+        if(angle_x < 5)
+        {
+            _gun.fire();
+        }
     }
+
 }
 
-int Robocar::angle_change_x(std::vector<cv::Point2f> corners)
+double Robocar::angle_change_x(std::vector<cv::Point2f> corners)
 {
     double x = (corners.at(0).x + corners.at(1).x + corners.at(2).x + corners.at(3).x)/4;
     double y = (corners.at(0).y + corners.at(1).y + corners.at(2).y + corners.at(3).y)/4;
@@ -449,12 +512,12 @@ int Robocar::angle_change_x(std::vector<cv::Point2f> corners)
     }
     else
     {
-        double angle_radians = atan((y - _pi_camera.size().height) / (x - _pi_camera.size().width / 2));
+        double angle_radians = atan2((y - _pi_camera.size().height),(x - _pi_camera.size().width / 2));
         return angle_radians*(180/M_PI);
     }
 }
 
-int Robocar::angle_change_y(std::vector<cv::Point2f> corners)
+double Robocar::angle_change_y(std::vector<cv::Point2f> corners)
 {
     double h = abs(corners.at(0).y * corners.at(1).y - corners.at(2).y * corners.at(3).y)/2;
     double d = (FOCAL_LENGTH*REAL_HEIGHT*h)/(_pi_camera.size().height*SENSOR_HEIGHT)/1000;
