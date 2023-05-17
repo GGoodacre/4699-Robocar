@@ -30,3 +30,29 @@ double area_corners(std::vector<cv::Point2f> points)
         return abs((a+b+c+d)/2);
     }
 }
+
+
+bool draw_rotated_rect(cv::Mat& im, cv::RotatedRect rect, cv::Scaler colour)
+{
+    if(im.empty() == false)
+    {
+        cv::Point2f vertices2f[4];
+        rect.points(vertices2f);
+
+        cv::Point vertices[4];    
+        for(int i = 0; i < 4; ++i){
+            vertices[i] = vertices2f[i];
+        }
+
+        // Now we can fill the rotated rectangle with our specified color
+        cv::fillConvexPoly(im,
+                        vertices,
+                        4,
+                        colour);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}

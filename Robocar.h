@@ -30,6 +30,7 @@ class Robocar :
 
         cv::Mat _pi_camera;
         cv::Mat _input_box;
+        cv::Mat _snapshot;
 
         Robo_Server _server;
         Robo_Server _cmd_server;
@@ -58,6 +59,7 @@ class Robocar :
         double angle_change_x(std::vector<cv::Point2f> corners);
         double angle_change_y(std::vector<cv::Point2f> corners);
 
+        void state_change();
         //SETTINGS
         int _max_power;
         int _servo_speed;
