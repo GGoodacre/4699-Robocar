@@ -1,5 +1,6 @@
 #include "Robo_Gun.h"
 #include <thread>
+#include <iostream>
 
 Robo_Gun::Robo_Gun() :
     _servo_X(Servo(SERVO_X)),
@@ -7,7 +8,7 @@ Robo_Gun::Robo_Gun() :
     _servo_TRIGGER(Servo(SERVO_TRIGGER)),
     _firing(0)
 {
-    absolute_move(1500, 1500);
+    absolute_move(1500, 500);
 }
 
 bool Robo_Gun::fire()
@@ -47,10 +48,13 @@ void Robo_Gun::absolute_move(int x, int y)
 
 void Robo_Gun::auto_move(double x_change, double absolute_y)
 {
-    _x = _x + degree2servo(x_change);
+    //std::cout << "Current angle: " << _x;
+    _x = _x + x_change*2000/180;
+    //std::cout << " New angle: " << _x << std::endl;
     if(_x > 2500) _x = 2500;
     if(_x < 500) _x = 500;
-    _y = degree2servo(absolute_y);
+    _y = absolute_y*5.556 + 1000;
+    std::cout << "Current angle: " << _y << std::endl;
     if(_y > 2500) _y = 2500;
     if(_y < 500) _y = 500;
     _servo_X.set_value(_x);

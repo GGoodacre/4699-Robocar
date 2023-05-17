@@ -116,6 +116,7 @@ void Robocar::testPI()
     if(test_image.empty() == false)
     {
         cv::imshow("Server", test_image);
+        cv::imwrite("arena.jpg", test_image);
     }
     std::cout << "Current Status: " << test_status << std::endl;
     /*
@@ -503,11 +504,8 @@ void Robocar::automatic_shoot(cv::Mat im)
         std::vector<std::vector<cv::Point2f>> corners = _camera.get_corners();
         angle_x = angle_change_x(corners.at(target_found));
         angle_y = angle_change_y(corners.at(target_found));
-        _gun.auto_move(angle_x, angle_y-90);
-        if(angle_x < 5)
-        {
-            _gun.fire();
-        }
+        std::cout << "Angle y: " << angle_y << std::endl;
+        _gun.auto_move(angle_x, angle_y);
     }
 
 }
@@ -516,27 +514,37 @@ double Robocar::angle_change_x(std::vector<cv::Point2f> corners)
 {
     double x = (corners.at(0).x + corners.at(1).x + corners.at(2).x + corners.at(3).x)/4;
     double y = (corners.at(0).y + corners.at(1).y + corners.at(2).y + corners.at(3).y)/4;
-
+    /*
     if(x == 0)
     {
         return 0;
     }
     else
     {
-        double angle_radians = atan2((y - _pi_camera.size().height),(x - _pi_camera.size().width / 2));
-        return angle_radians*(180/M_PI);
+        /ouble angle_radians = atan2((_pi_camera.size().height - y),(x - _pi_camera.size().width / 2));
+        //std::cout << "x: " << _pi_camera.size().width << " y: " << _pi_camera.size().height << std::endl;
+        //std::cout << "x: " << x << " y: " << y << " angle: " << angle_radians*(180/M_PI) << std::endl;
+        return -(90 - angle_radians*(180/M_PI));
     }
+    */
+    double angle = -(x*0.015625-5);
+    if(x < 340 && x > 300)
+    {
+        _gun.fire();
+        return 0;
+    }
+    return angle;
 }
 
 double Robocar::angle_change_y(std::vector<cv::Point2f> corners)
 {
-    double h = abs(corners.at(0).y * corners.at(1).y - corners.at(2).y * corners.at(3).y)/2;
-    double d = (FOCAL_LENGTH*REAL_HEIGHT*h)/(_pi_camera.size().height*SENSOR_HEIGHT)/1000;
+    //double h = abs(corners.at(0).y * corners.at(1).y - corners.at(2).y * corners.at(3).y)/2;
+    double a = pow(area_corners(corners),0.5);
+    double d = (FOCAL_LENGTH*REAL_HEIGHT*_pi_camera.size().height)/(a*SENSOR_HEIGHT)/1000;
     std::cout << "Distance: " << std::to_string(d) << std::endl;
     if(d < ANGLE0_DISTANCE)
     {
-        //return pow(COEFF_A2*d,2) + COEFF_B2*d + COEFF_C2;
-        return 10;
+        return COEFF_A2*pow(d,2) + COEFF_B2*d + COEFF_C2;
     }
     else if(d > MAX_DISTANCE)
     {
@@ -544,8 +552,7 @@ double Robocar::angle_change_y(std::vector<cv::Point2f> corners)
     }
     else
     {
-        //return pow(COEFF_A1*d,2) + COEFF_B1*d + COEFF_C1;
-        return 10;
+        return COEFF_A1*pow(d,2) + COEFF_B1*d + COEFF_C1;
     }
 
 }

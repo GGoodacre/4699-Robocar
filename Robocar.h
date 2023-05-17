@@ -69,25 +69,24 @@ enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define INPUT_HEIGHT 200
 
 //ARUCO MARKERS
-#define WEST_MARKER 20
-//21
+#define WEST_MARKER 21
 #define NORTH_MARKER 22
 #define EAST_MARKER 27
 #define SOUTH_MARKER 23
 #define CAR_MARKER 32
 
 //Angle calculations
-#define MAX_DISTANCE 2
-#define ANGLE_MAXDISTANCE 2
-#define ANGLE0_DISTANCE 2
+#define MAX_DISTANCE 0.782336
+#define ANGLE_MAXDISTANCE 43
+#define ANGLE0_DISTANCE 0.270914
 
-#define COEFF_A1 2
-#define COEFF_B1 2
-#define COEFF_C1 2
+#define COEFF_A1 65.419
+#define COEFF_B1 2.9301
+#define COEFF_C1 -3.8349
 
-#define COEFF_A2 2
-#define COEFF_B2 2
-#define COEFF_C2 2
+#define COEFF_A2 -49.698
+#define COEFF_B2 -11.899
+#define COEFF_C2 87.777
 
 #define FOCAL_LENGTH 3.04
 #define REAL_HEIGHT 25.4

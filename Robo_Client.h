@@ -31,4 +31,4 @@ class Robo_Client :
 };
 
 #define ARENA_PORT 5001
-#define ARENA_ADDRESS "192.168.0.100"
+#define ARENA_ADDRESS "192.168.0.105"
