@@ -276,7 +276,7 @@ void Robocar::automatic_mode()
 
     _server.lock();
     _pi_camera = _camera.capture_frame();
-    _snapshoht = _pi_camera;
+    _snapshot = _pi_camera;
     _server.unlock();
 
 
@@ -316,58 +316,64 @@ void Robocar::automatic_drive(cv::Mat im)
         std::vector<cv::Point2f> car_location = aruco.get_corners().at(car);
         cv::Point2f car_center = cv::Point2f((car_location.at(0).x + car_location.at(1).x)/2,(car_location.at(0).y + car_location.at(2).y)/2);
         double car_angle = atan2((car_location.at(0).y - car_location.at(2).y),(car_location.at(0).x-car_location.at(2).x)) * (180/M_PI);
-
-
+        //std::cout << "Car Center x: " << car_center.x << " y: " << car_center.y << std::endl;
+        //std::cout << "Car Angle: " << car_angle << std::endl;
         switch(_state)
         {
             case(2):
             {
                 desired_location = cv::Point2f(70, 395);
+                break;
             }
             case(3):
             {
                 desired_location = cv::Point2f(257, 356);
+                break;
             }
             case(4):
             {
                 desired_location = cv::Point2f(543, 510);
+                break;
             }
             default:
             {
                 desired_location = car_center;
+                break;
             }
         }
+        //std::cout << "Next Location x: " << desired_location.x << " y: " << desired_location.y << std::endl;
 
         if(distance(desired_location, car_center) < 10)
         {
+            //std::cout << "TOO CLOSE" << std::endl;
             _drive.stop();
             return;
         }
         else
         {
-            {
-                double a = angle(car_center, desired_location);
-                cv::Point2f middle_point = cv::Point2f((car_center.x+desired_location.x)/2,(car_center.y+desired_location.y)/2);
-                cv::_OutputArray output;
-                cv::RotatedRect car_path = cv::RotatedRect(middle_point, cv::Size2f(40,distance(desired_location, car_center)), a);
-                
-                //////////////////////////////// TESTING CODE
-                draw_rotated_rect(im, car_path, cv::Scalar(255,255,255));
-                draw_rotated_rect(im, Barrier_1, cv:Scalar(255,0,0));
-                draw_rotated_rect(im, Barrier_2, cv::Scalar(255,0,0));
-                cv::circle(im, desired_location, 4, cv::Scalar(0,255,0));
-                cv::circle(im, car_center, 4, cv::Scalar(0,0,255));
-                cv::imshow("Rects", im);
-                ////////////////////////////////
+            double a = angle(cv::Point2f(car_center.y,car_center.x), cv::Point2f(desired_location.y,desired_location.x));
+            //std::cout << "a: " << a << std::endl;
+            cv::Point2f middle_point = cv::Point2f((car_center.x+desired_location.x)/2,(car_center.y+desired_location.y)/2);
+            cv::Mat output;
+            cv::RotatedRect car_path = cv::RotatedRect(middle_point, cv::Size2f(40,distance(desired_location, car_center)), a);
 
-                if (cv::rotatedRectangleIntersection(car_path,Barrier_1,output) == cv::INTERSECT_NONE && cv::rotatedRectangleIntersection(car_path,Barrier_2,output) == cv::INTERSECT_NONE)
-                {
-                    _drive.set_direction(car_angle - a);
-                }
-                else
-                {
-                    _drive.set_direction(0);
-                }
+            //////////////////////////////// TESTING CODE
+            draw_rotated_rect(im, car_path, cv::Scalar(255,255,255));
+            draw_rotated_rect(im, Barrier_1, cv::Scalar(255,0,0));
+            draw_rotated_rect(im, Barrier_2, cv::Scalar(255,0,0));
+            cv::circle(im, desired_location, 4, cv::Scalar(0,255,0));
+            cv::circle(im, car_center, 4, cv::Scalar(0,0,255));
+            cv::imshow("Rects", im);
+            ////////////////////////////////
+
+            if (cv::rotatedRectangleIntersection(car_path,Barrier_1,output) == cv::INTERSECT_NONE && cv::rotatedRectangleIntersection(car_path,Barrier_2,output) == cv::INTERSECT_NONE)
+            {
+                //std::cout << "Direction: " << a - car_angle << std::endl;
+                _drive.set_direction(a - car_angle);
+            }
+            else
+            {
+                _drive.set_direction(0);
             }
         }
     }
@@ -522,7 +528,7 @@ double Robocar::angle_change_y(std::vector<cv::Point2f> corners)
 {
     //double h = abs(corners.at(0).y * corners.at(1).y - corners.at(2).y * corners.at(3).y)/2;
     double a = pow(area_corners(corners),0.5);
-    double d = (FOCAL_LENGTH*REAL_HEIGHT*h)/(_snapshot.size().height*SENSOR_HEIGHT)/1000;
+    double d = (FOCAL_LENGTH*REAL_HEIGHT*_snapshot.size().height)/(a*SENSOR_HEIGHT)/1000;
     std::cout << "Distance: " << std::to_string(d) << std::endl;
     if(d < ANGLE0_DISTANCE)
     {
@@ -544,6 +550,7 @@ void Robocar::state_change()
     _client.lock();
     std::string status = _client.get_status();
     _client.unlock();
+    //std::string status = "<ARENA TIME=\"0.000000\" D1=\"1\" D2=\"1\" D3=\"0\" D4=\"0\" />";
 
     if(std::regex_match(status, std::regex("^<(.*/>)?$")))
     {
@@ -551,33 +558,37 @@ void Robocar::state_change()
         {
             case 0:
             {
-                if(status[27] == "1")
+                if(std::regex_search(status, std::regex("D1=\"1\"")))
                 {
                     _state++;
+                    std::cout << "Current State: " << _state << std::endl;
                 }
                 break;
             }
             case 1:
             {
-                if(status[34] == "1")
+                if(std::regex_search(status, std::regex("D2=\"1\"")))
                 {
                     _state++;
+                    std::cout << "Current State: " << _state << std::endl;
                 }
                 break;
             }
             case 2:
             {
-                if(status[41] == "1")
+                if(std::regex_search(status, std::regex("D3=\"1\"")))
                 {
                     _state++;
+                    std::cout << "Current State: " << _state << std::endl;
                 }
                 break;
             }
             case 3:
             {
-                if(status[48] == "1")
+                if(std::regex_search(status, std::regex("D4=\"1\"")))
                 {
                     _state++;
+                    std::cout << "Current State: " << _state << std::endl;
                 }
                 break;
             }
