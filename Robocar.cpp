@@ -1,5 +1,6 @@
 #include "Robocar.h"
 #include "usefulfunctions.h"
+#include <regex>
 
 Robocar::Robocar() :
     _mode(STANDBY),
@@ -111,8 +112,9 @@ void Robocar::testPI()
     std::string test_status;
     _client.lock();
     test_image = _client.get_image();
-    _client.unlock();
     test_status = _client.get_status();
+    _client.unlock();
+
     if(test_image.empty() == false)
     {
         cv::imshow("Server", test_image);
@@ -140,7 +142,6 @@ void Robocar::testPI()
             }
         }
     }
-    */
 
     std::vector<std::string> cmds;
     cmds = _server.get_cmds();
@@ -151,16 +152,18 @@ void Robocar::testPI()
             std::cout << cmds.at(i) << std::endl;
         }
     }
-
+    */
 }
 
 void Robocar::telecommunication_mode()
 {
+    _client.lock();
     _server.lock();
     _pi_camera = _camera.capture_frame();
     _server.set_status(_client.get_status());
     _server.set_y(_gun.get_y());
     _server.unlock();
+    _client.unlock();
 
     _cmd_server.lock();
     std::string cmd;
@@ -268,67 +271,33 @@ void Robocar::telecommunication_shoot(std::string cmd)
 void Robocar::automatic_mode()
 {
     _client.lock();
-    std::string status = _client.get_status();
     cv::Mat client_image = _client.get_image();
     _client.unlock();
 
     _server.lock();
     _pi_camera = _camera.capture_frame();
+    _snapshoht = _pi_camera;
     _server.unlock();
 
-    if(status.length() == -1)
-    {
-        switch(_state)
-        {
-            case 0:
-            {
-                if(status[6] == 1)
-                {
-                    _state++;
-                }
-                break;
-            }
-            case 1:
-            {
-                if(status[8] == 1)
-                {
-                    _state++;
-                }
-                break;
-            }
-            case 2:
-            {
-                if(status[10] == 1)
-                {
-                    _state++;
-                }
-                break;
-            }
-            case 3:
-            {
-                if(status[12] == 1)
-                {
-                    _state++;
-                }
-                break;
-            }
-        }
-    }
 
-    //automatic_drive(client_image);
+    state_change();
+    automatic_drive(client_image);
     automatic_shoot(client_image);
 }
 
 void Robocar::automatic_drive(cv::Mat im)
 {
+
+    im = cv::imread("arena.jpg");
+
     cv::Point2f desired_location;
     Aruco aruco = Aruco(im);
     aruco.find_markers();
 
     std::vector<int> ids = aruco.get_ids();
 
-    cv::RotatedRect Barrier_1 = cv::RotatedRect(cv::Point2f(600,4000),cv::Point2f(600,3200),cv::Point2f(800,3200));
-    cv::RotatedRect Barrier_2 = cv::RotatedRect(cv::Point2f(3400,4000),cv::Point2f(3400,3200),cv::Point2f(3200,3200));
+    cv::RotatedRect Barrier_1 = cv::RotatedRect(cv::Point2f(109,600),cv::Point2f(109,429),cv::Point2f(134,429));
+    cv::RotatedRect Barrier_2 = cv::RotatedRect(cv::Point2f(469,600),cv::Point2f(469,429),cv::Point2f(490,429));
 
 
     int car = -1;
@@ -342,50 +311,63 @@ void Robocar::automatic_drive(cv::Mat im)
             }
         }
     }
-    std::vector<cv::Point2f> car_location = aruco.get_corners().at(car);
-    cv::Point2f car_center = cv::Point2f((car_location.at(0).x + car_location.at(1).x)/2,(car_location.at(0).y + car_location.at(2).y)/2);
-    double car_angle = atan2((car_location.at(0).y - car_location.at(2).y),(car_location.at(0).x-car_location.at(2).x)) * (180/M_PI);
+    if(car != -1)
+    {
+        std::vector<cv::Point2f> car_location = aruco.get_corners().at(car);
+        cv::Point2f car_center = cv::Point2f((car_location.at(0).x + car_location.at(1).x)/2,(car_location.at(0).y + car_location.at(2).y)/2);
+        double car_angle = atan2((car_location.at(0).y - car_location.at(2).y),(car_location.at(0).x-car_location.at(2).x)) * (180/M_PI);
 
 
-    switch(_state)
-    {
-        case(2):
+        switch(_state)
         {
-            desired_location = cv::Point2f(200, 3000);
-        }
-        case(3):
-        {
-            desired_location = cv::Point2f(2000, 3000);
-        }
-        case(4):
-        {
-            desired_location = cv::Point2f(3800, 3800);
-        }
-        default:
-        {
-            desired_location = car_center;
-        }
-    }
-
-    if(distance(desired_location, car_center) < 10)
-    {
-        _drive.stop();
-        return;
-    }
-    else
-    {
-        {
-            double a = angle(car_center, desired_location);
-            cv::Point2f middle_point = cv::Point2f((car_center.x+desired_location.x)/2,(car_center.y+desired_location.y)/2);
-            cv::_OutputArray output;
-            cv::RotatedRect car_path = cv::RotatedRect(middle_point, cv::Size2f(200,distance(desired_location, car_center)), a);
-            if (cv::rotatedRectangleIntersection(car_path,Barrier_1,output) == cv::INTERSECT_NONE && cv::rotatedRectangleIntersection(car_path,Barrier_2,output) == cv::INTERSECT_NONE)
+            case(2):
             {
-                _drive.set_direction(car_angle - a);
+                desired_location = cv::Point2f(70, 395);
             }
-            else
+            case(3):
             {
-                _drive.set_direction(0);
+                desired_location = cv::Point2f(257, 356);
+            }
+            case(4):
+            {
+                desired_location = cv::Point2f(543, 510);
+            }
+            default:
+            {
+                desired_location = car_center;
+            }
+        }
+
+        if(distance(desired_location, car_center) < 10)
+        {
+            _drive.stop();
+            return;
+        }
+        else
+        {
+            {
+                double a = angle(car_center, desired_location);
+                cv::Point2f middle_point = cv::Point2f((car_center.x+desired_location.x)/2,(car_center.y+desired_location.y)/2);
+                cv::_OutputArray output;
+                cv::RotatedRect car_path = cv::RotatedRect(middle_point, cv::Size2f(40,distance(desired_location, car_center)), a);
+                
+                //////////////////////////////// TESTING CODE
+                draw_rotated_rect(im, car_path, cv::Scalar(255,255,255));
+                draw_rotated_rect(im, Barrier_1, cv:Scalar(255,0,0));
+                draw_rotated_rect(im, Barrier_2, cv::Scalar(255,0,0));
+                cv::circle(im, desired_location, 4, cv::Scalar(0,255,0));
+                cv::circle(im, car_center, 4, cv::Scalar(0,0,255));
+                cv::imshow("Rects", im);
+                ////////////////////////////////
+
+                if (cv::rotatedRectangleIntersection(car_path,Barrier_1,output) == cv::INTERSECT_NONE && cv::rotatedRectangleIntersection(car_path,Barrier_2,output) == cv::INTERSECT_NONE)
+                {
+                    _drive.set_direction(car_angle - a);
+                }
+                else
+                {
+                    _drive.set_direction(0);
+                }
             }
         }
     }
@@ -540,7 +522,7 @@ double Robocar::angle_change_y(std::vector<cv::Point2f> corners)
 {
     //double h = abs(corners.at(0).y * corners.at(1).y - corners.at(2).y * corners.at(3).y)/2;
     double a = pow(area_corners(corners),0.5);
-    double d = (FOCAL_LENGTH*REAL_HEIGHT*_pi_camera.size().height)/(a*SENSOR_HEIGHT)/1000;
+    double d = (FOCAL_LENGTH*REAL_HEIGHT*h)/(_snapshot.size().height*SENSOR_HEIGHT)/1000;
     std::cout << "Distance: " << std::to_string(d) << std::endl;
     if(d < ANGLE0_DISTANCE)
     {
@@ -555,4 +537,50 @@ double Robocar::angle_change_y(std::vector<cv::Point2f> corners)
         return COEFF_A1*pow(d,2) + COEFF_B1*d + COEFF_C1;
     }
 
+}
+
+void Robocar::state_change()
+{
+    _client.lock();
+    std::string status = _client.get_status();
+    _client.unlock();
+
+    if(std::regex_match(status, std::regex("^<(.*/>)?$")))
+    {
+        switch(_state)
+        {
+            case 0:
+            {
+                if(status[27] == "1")
+                {
+                    _state++;
+                }
+                break;
+            }
+            case 1:
+            {
+                if(status[34] == "1")
+                {
+                    _state++;
+                }
+                break;
+            }
+            case 2:
+            {
+                if(status[41] == "1")
+                {
+                    _state++;
+                }
+                break;
+            }
+            case 3:
+            {
+                if(status[48] == "1")
+                {
+                    _state++;
+                }
+                break;
+            }
+        }
+    }
 }
