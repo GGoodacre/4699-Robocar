@@ -75,7 +75,7 @@ enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define NORTH_MARKER 22
 #define EAST_MARKER 27
 #define SOUTH_MARKER 23
-#define CAR_MARKER 32
+#define CAR_MARKER 0
 
 //Angle calculations
 #define MAX_DISTANCE 0.782336

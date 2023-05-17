@@ -11,7 +11,10 @@ double distance(cv::Point2f a, cv::Point2f b)
 double angle(cv::Point2f a, cv::Point2f b)
 {
     double angle;
-    angle = atan2(b.y - a.y, b.x - a.x) * (180 / M_PI);
+    double delta_y = a.y - b.y;
+    double delta_x = b.x - a.x;
+    //std::cout << "Y: " << delta_y << " X: " << delta_x << std::endl;
+    angle = atan2(delta_y, delta_x) * (180 / M_PI);
     return angle;
 }
 
@@ -32,14 +35,14 @@ double area_corners(std::vector<cv::Point2f> points)
 }
 
 
-bool draw_rotated_rect(cv::Mat& im, cv::RotatedRect rect, cv::Scaler colour)
+bool draw_rotated_rect(cv::Mat& im, cv::RotatedRect rect, cv::Scalar colour)
 {
     if(im.empty() == false)
     {
         cv::Point2f vertices2f[4];
         rect.points(vertices2f);
 
-        cv::Point vertices[4];    
+        cv::Point vertices[4];
         for(int i = 0; i < 4; ++i){
             vertices[i] = vertices2f[i];
         }
