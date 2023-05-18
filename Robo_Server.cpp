@@ -21,6 +21,12 @@ void Robo_Server::start(int port, cv::Mat& im)
     th_server_run.detach();
 }
 
+void Robo_Server::start_cmd(int port)
+{
+    std::thread th_server_start(&Robo_Server::start_server, port, this);
+    th_server_start.detach();
+}
+
 std::vector<std::string> Robo_Server::get_cmds()
 {
     get_cmd(_cmds);
@@ -55,13 +61,11 @@ void Robo_Server::run_server(cv::Mat& im, Robo_Server* ptr)
         frame = im;
         if(frame.empty() == false)
         {
-            cv::cvtColor(frame,frame,cv::COLOR_RGB2GRAY);
             cvui::text(frame, 20, 20, ptr->_status);
-            std::string str = std::to_string(ptr->_y);
-            cvui::text(frame, 20, 60, str);
         }
-        ptr->_lock.unlock();
         ptr->set_txim(frame);
+        ptr->_lock.unlock();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         /*
         ptr->get_cmd(cmds);
         ptr->_cmds = cmds;

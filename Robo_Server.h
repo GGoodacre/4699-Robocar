@@ -13,12 +13,12 @@ class Robo_Server :
         ~Robo_Server();
 
         void start(int port, cv::Mat& im);
+        void start_cmd(int port);
         std::vector<std::string> get_cmds();
         std::string get_latest_cmd();
         void lock() {_lock.lock(); };
         void unlock() {_lock.unlock(); };
         void set_status(std::string status) {_status = status; };
-        void set_y(int y) { _y = y; };
 
     protected:
         void start(int port) override { Server::start(port); };
@@ -32,7 +32,6 @@ class Robo_Server :
         std::mutex _lock;
         std::vector<std::string> _cmds;
         std::string _status;
-        int _y;
 
 
         bool _thread_exit;

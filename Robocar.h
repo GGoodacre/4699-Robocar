@@ -29,6 +29,7 @@ class Robocar :
         Robo_Gun _gun;
 
         cv::Mat _pi_camera;
+        cv::Mat _empty_im;
         cv::Mat _input_box;
         cv::Mat _snapshot;
 
@@ -56,6 +57,7 @@ class Robocar :
         void automatic_drive(cv::Mat im);
         void automatic_shoot(cv::Mat im);
         int _state;
+
         double angle_change_x(std::vector<cv::Point2f> corners);
         double angle_change_y(std::vector<cv::Point2f> corners);
 
@@ -71,11 +73,16 @@ enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define INPUT_HEIGHT 200
 
 //ARUCO MARKERS
-#define WEST_MARKER 21
-#define NORTH_MARKER 22
-#define EAST_MARKER 27
-#define SOUTH_MARKER 23
-#define CAR_MARKER 0
+//#define WEST_MARKER 21
+//#define NORTH_MARKER 22
+//#define EAST_MARKER 27
+//#define SOUTH_MARKER 23
+#define CAR_MARKER 26
+
+#define WEST_MARKER -1
+#define NORTH_MARKER -1
+#define EAST_MARKER -1
+#define SOUTH_MARKER -1
 
 //Angle calculations
 #define MAX_DISTANCE 0.782336

@@ -42,6 +42,10 @@ void Robo_Gun::absolute_move(int x, int y)
 {
     _x = x;
     _y = y;
+    if(_x > 2500) _x = 2500;
+    if(_x < 500) _x = 500;
+    if(_y > 1500) _y = 1500;
+    if(_y < 1000) _y = 1000;
     _servo_X.set_value(_x);
     _servo_Y.set_value(_y);
 }
