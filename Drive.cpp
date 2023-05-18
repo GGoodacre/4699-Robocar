@@ -1,6 +1,7 @@
 #include "Drive.h"
 #include <math.h>
 #include <thread>
+#include <iostream>
 
 Drive::Drive() :
     _motor_left(Motor(
@@ -136,11 +137,12 @@ void Drive::go_until(int angle, double distance)
     std::chrono::microseconds time_to_run;
     if((angle > 22.5) || (angle < -22.5))
     {
-        time_to_run = std::chrono::milliseconds(int(angle*TURN_SPEED*1000));
+        time_to_run = std::chrono::milliseconds(int(angle*TURN_SPEED*10*_max_power));
     }
     else
     {
-        time_to_run = std::chrono::milliseconds(int(distance*DRIVE_SPEED*1000));
+        time_to_run = std::chrono::milliseconds(int(distance*DRIVE_SPEED*10*_max_power));
+        //std::cout << int(distance*DRIVE_SPEED*10*_max_power);
     }
     if(_running)
     {
@@ -162,6 +164,9 @@ void Drive::run_motor(Drive *ptr)
     do
     {
         ptr->set_direction(ptr->_current_angle);
-    } while (ptr->_end_time > std::chrono::system_clock::now());
+        //std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(ptr->_end_time - std::chrono::system_clock::now()).count() << std::endl;
 
+    } while (std::chrono::duration_cast<std::chrono::milliseconds>(ptr->_end_time - std::chrono::system_clock::now()).count() > 0);
+    ptr->_running = false;
+    ptr->stop();
 }

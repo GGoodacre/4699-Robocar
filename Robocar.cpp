@@ -175,6 +175,8 @@ void Robocar::telecommunication_mode()
     _server.unlock();
     _client.unlock();
 
+    _in_location = false;
+
 
     if (cmd == "EMPTY")
     {
@@ -352,7 +354,7 @@ bool Robocar::automatic_drive(cv::Mat im)
             }
             case(4):
             {
-                desired_location = cv::Point2f(543, 510);
+                desired_location = cv::Point2f(517, 560);
                 break;
             }
             default:
@@ -373,16 +375,16 @@ bool Robocar::automatic_drive(cv::Mat im)
         {
             bool loop_exit = false;
             int i = 0;
+            int cw = 0;
             double d = distance(car_center, desired_location);
             double a;
             cv::RotatedRect car_path;
 
             do
-                {
+            {
                 a = angle(car_center, desired_location);
                 cv::Point2f middle_point = cv::Point2f((car_center.x+desired_location.x)/2,(car_center.y+desired_location.y)/2);
                 car_path = cv::RotatedRect(middle_point, cv::Size2f(40,distance(desired_location, car_center)), angle(cv::Point2f(car_center.y,car_center.x), cv::Point2f(desired_location.y,desired_location.x)));
-                int cw = 0;
 
                 switch(barrier_hit(car_path))
                 {
@@ -403,7 +405,7 @@ bool Robocar::automatic_drive(cv::Mat im)
                             i = i - 1;
                         }
 
-                        desired_location = cv::Point2f(d*(1/0.002032)*cos((a+i)*(M_PI/180)) + car_center.x,-d*(1/0.002032)*sin((a+i)*(M_PI/180)) + car_center.y);
+                        desired_location = cv::Point2f(d*cos((a+i)*(M_PI/180)) + car_center.x,-d*sin((a+i)*(M_PI/180)) + car_center.y);
                         break;
                     }
                     case 3:
@@ -421,16 +423,16 @@ bool Robocar::automatic_drive(cv::Mat im)
                         {
                             i = i - 1;
                         }
-                        desired_location = cv::Point2f(d*(1/0.002032)*cos((a+i)*(M_PI/180)) + car_center.x, -d*(1/0.002032)*sin((a+i)*(M_PI/180)) + car_center.y);
+                        desired_location = cv::Point2f(d*cos((a+i)*(M_PI/180)) + car_center.x, -d*sin((a+i)*(M_PI/180)) + car_center.y);
                         break;
                     }
                     case 0:
                     {
                         if(cw != 0)
                         {
-                            d = 0.5;
+                            d = 100;
                         }
-                        _drive.go_until(car_angle - a, d);
+                        _drive.go_until(car_angle - a, d*0.002032);
                         loop_exit = true;
                         break;
                     }
@@ -450,7 +452,7 @@ bool Robocar::automatic_drive(cv::Mat im)
             std::cout << "Car Angle: " << car_angle << std::endl;
             std::cout << "Angle: " << a << std::endl;
             std::cout << "Direction: " << car_angle - a << std::endl;
-            std::cout << "Distance to target: " << distance(desired_location, car_center) << std::endl;
+            std::cout << "Distance to target: " << distance(desired_location, car_center)*0.002032 << std::endl;
             ////////////////////////////////
 
             return false;
