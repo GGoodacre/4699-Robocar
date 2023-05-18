@@ -9,7 +9,8 @@ class Drive
         void start();
         void stop();
         void set_direction(int angle);
-        void set_max_power(int power) { _max_power = power; };
+        void set_max_power(int power);
+        void go_until(int angle, double distance);
 
     private:
 
@@ -19,7 +20,15 @@ class Drive
         int _current_angle;
         int _max_power;
 
+        std::chrono::time_point<std::chrono::system_clock> _end_time;
+
+        static void run_motor(Drive* ptr);
+
+        std::mutex _lock;
+        bool _running;
 
 };
 
 #define MAX_POWER 60
+#define TURN_SPEED  1
+#define DRIVE_SPEED 1

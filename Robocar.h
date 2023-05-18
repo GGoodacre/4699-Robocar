@@ -54,9 +54,10 @@ class Robocar :
 
         //AUTOMATIC
         void automatic_mode();
-        void automatic_drive(cv::Mat im);
+        bool automatic_drive(cv::Mat im);
         void automatic_shoot(cv::Mat im);
         int _state;
+        bool _in_location;
 
         double angle_change_x(std::vector<cv::Point2f> corners);
         double angle_change_y(std::vector<cv::Point2f> corners);

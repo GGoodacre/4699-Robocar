@@ -295,7 +295,7 @@ void Robocar::automatic_mode()
     state_change();
     if(client_image.empty() == false)
     {
-        automatic_drive(client_image);
+        _in_location = automatic_drive(client_image);
     }
     automatic_shoot(shoot_image);
 }
@@ -312,10 +312,6 @@ void Robocar::automatic_drive(cv::Mat im)
     //cv::imshow("Top Down", im);
 
     std::vector<int> ids = aruco.get_ids();
-
-
-    cv::RotatedRect Barrier_1 = cv::RotatedRect(cv::Point2f(109,600),cv::Point2f(109,429),cv::Point2f(134,429));
-    cv::RotatedRect Barrier_2 = cv::RotatedRect(cv::Point2f(469,600),cv::Point2f(469,429),cv::Point2f(490,429));
 
 
     int car = -1;
@@ -369,18 +365,54 @@ void Robocar::automatic_drive(cv::Mat im)
         {
             //std::cout << "TOO CLOSE" << std::endl;
             _drive.stop();
-            return;
+            return true;
         }
         else
         {
-            double a = angle(car_center, desired_location);
-            //std::cout << "a: " << a << std::endl;
-            cv::Point2f middle_point = cv::Point2f((car_center.x+desired_location.x)/2,(car_center.y+desired_location.y)/2);
-            cv::Mat output;
-            cv::RotatedRect car_path = cv::RotatedRect(middle_point, cv::Size2f(40,distance(desired_location, car_center)), angle(cv::Point2f(car_center.y,car_center.x), cv::Point2f(desired_location.y,desired_location.x)));
+            bool loop_exit = false;
+            int i = 0;
+            double d = distance(car_center, desired_location);
 
-            //////////////////////////////// TESTING CODE
+            do
+                {
+                double a = angle(car_center, desired_location);
+                cv::Point2f middle_point = cv::Point2f((car_center.x+desired_location.x)/2,(car_center.y+desired_location.y)/2);
+                cv::RotatedRect car_path = cv::RotatedRect(middle_point, cv::Size2f(40,distance(desired_location, car_center)), angle(cv::Point2f(car_center.y,car_center.x), cv::Point2f(desired_location.y,desired_location.x)));
 
+                
+                switch(barrier_hit(car_path))
+                {
+                    case 1:
+                    case 2:
+                    {
+                        i = i + 5;
+                        desired_location = cv::Point2f(d*cos(a+i),d*sin(a+i));
+                        d = 0.5;
+                        break;
+                    }
+                    case 3:
+                    {
+                        i = i + 5;
+                        desired_location = cv::Point2f(d*cos(a-i),d*sin(a-i));
+                        d = 0.5;
+                        break;
+                    }
+                    case 0:
+                    {
+                        _drive.go_until(car_angle - a, d);
+                        loop_exit = true;
+                        break;
+                    }
+                }
+                if(i >= 360)
+                {
+                    loop_exit = true;
+                    std::cout << "IM STUCK" << std::endl;
+                }
+            } while(loop_exit == false)
+
+
+            //////////////////////////////// TESTING CODE   
             draw_rotated_rect(im, car_path, cv::Scalar(255,255,255));
             draw_rotated_rect(im, Barrier_1, cv::Scalar(255,0,0));
             draw_rotated_rect(im, Barrier_2, cv::Scalar(255,0,0));
@@ -392,16 +424,7 @@ void Robocar::automatic_drive(cv::Mat im)
             std::cout << "Direction: " << car_angle - a << std::endl;
             std::cout << "Distance to target: " << distance(desired_location, car_center) << std::endl;
             ////////////////////////////////
-
-            if (cv::rotatedRectangleIntersection(car_path,Barrier_1,output) == cv::INTERSECT_NONE && cv::rotatedRectangleIntersection(car_path,Barrier_2,output) == cv::INTERSECT_NONE)
-            {
-
-                _drive.set_direction(car_angle - a);
-            }
-            else
-            {
-                _drive.set_direction(0);
-            }
+            return false;
         }
     }
 }
@@ -547,13 +570,20 @@ void Robocar::automatic_shoot(cv::Mat im)
                 }
                 //std::cout << "Distance: " << d << std::endl;
                 //std::cout << "Y ANGLE: " << angle_y << std::endl;
-                _gun.absolute_move(angle_x*-11.11111 + 1500, angle_y*5.556 + 1000);
-                if((angle_x < 150) && (angle_x > -150))
+                _gun.absolute_move(angle_x*-12.5 + 1500, angle_y*5.556 + 1000);
+                if((angle_x < 70) && (angle_x > -70))
                 {
                     //std::cout << "IM TRYING TO FIRE" << std::endl;
                     if(_state != 4)
                     {
                         _gun.fire();
+                    }
+                }
+                else
+                {
+                    if(_in_location)
+                    {
+                        _drive.go_until(angle_x, d);
                     }
                 }
             }
