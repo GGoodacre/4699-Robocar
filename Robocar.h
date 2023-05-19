@@ -59,6 +59,8 @@ class Robocar :
         void automatic_shoot(cv::Mat im);
         int _state;
         bool _in_location;
+        bool find_my_car(cv::Point2f& car_center, double& angle);
+
 
         double angle_change_x(std::vector<cv::Point2f> corners);
         double angle_change_y(std::vector<cv::Point2f> corners);
@@ -75,16 +77,24 @@ enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define INPUT_HEIGHT 200
 
 //ARUCO MARKERS
-//#define WEST_MARKER 21
-//#define NORTH_MARKER 22
-//#define EAST_MARKER 27
-//#define SOUTH_MARKER 23
-#define CAR_MARKER 26
+#define WEST_MARKER 21
+#define NORTH_MARKER 22
+#define EAST_MARKER 27
+#define SOUTH_MARKER 23
 
-#define WEST_MARKER -1
-#define NORTH_MARKER -1
-#define EAST_MARKER -1
-#define SOUTH_MARKER -1
+
+//CAR MARKERS
+#define CAR_MARKER 26
+#define CAR_NORTH 1
+#define CAR_EAST 2
+#define CAR_SOUTH 3
+#define CAR_WEST 4
+
+
+//#define WEST_MARKER -1
+//#define NORTH_MARKER -1
+//#define EAST_MARKER -1
+//#define SOUTH_MARKER -1
 
 //Angle calculations
 #define MAX_DISTANCE 0.782336
@@ -102,3 +112,5 @@ enum {STANDBY = 0, PI, MANUAL, AUTO};
 #define FOCAL_LENGTH 3.04
 #define REAL_HEIGHT 25.4
 #define SENSOR_HEIGHT 2.76
+
+#define PIXELStoMETERS 0.002032
