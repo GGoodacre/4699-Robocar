@@ -8,7 +8,7 @@ Robo_Gun::Robo_Gun() :
     _servo_TRIGGER(Servo(SERVO_TRIGGER)),
     _firing(0)
 {
-    absolute_move(1500, 500);
+    absolute_move(500, 500);
 }
 
 bool Robo_Gun::fire()
@@ -30,10 +30,10 @@ void Robo_Gun::relative_move(int x, int y)
 {
     _x = _x + x;
     _y = _y + y;
-    if(_x > 2000) _x = 2000;
-    if(_x < 1000) _x = 1000;
-    if(_y > 2000) _y = 2000;
-    if(_y < 1000) _y = 1000;
+    if(_x > 2500) _x = 2500;
+    if(_x < 500) _x = 500;
+    if(_y > 2500) _y = 2500;
+    if(_y < 500) _y = 500;
     _servo_X.set_value(_x);
     _servo_Y.set_value(_y);
 }
@@ -44,8 +44,8 @@ void Robo_Gun::absolute_move(int x, int y)
     _y = y;
     if(_x > 2500) _x = 2500;
     if(_x < 500) _x = 500;
-    if(_y > 1500) _y = 1500;
-    if(_y < 1000) _y = 1000;
+    if(_y > 2500) _y = 2500;
+    if(_y < 500) _y = 500;
     _servo_X.set_value(_x);
     _servo_Y.set_value(_y);
 }
@@ -55,12 +55,12 @@ void Robo_Gun::auto_move(double x_change, double absolute_y)
     //std::cout << "Current angle: " << _x;
     _x = _x + x_change*2000/180;
     //std::cout << " New angle: " << _x << std::endl;
-    if(_x > 2000) _x = 2000;
-    if(_x < 1000) _x = 1000;
+    if(_x > 2500) _x = 2500;
+    if(_x < 500) _x = 500;
     _y = absolute_y*5.556 + 1000;
     //std::cout << "Current angle: " << _y << std::endl;
-    if(_y > 2000) _y = 2000;
-    if(_y < 1000) _y = 1000;
+    if(_y > 2500) _y = 2500;
+    if(_y < 500) _y = 500;
     _servo_X.set_value(_x);
     _servo_Y.set_value(_y);
 }

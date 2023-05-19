@@ -1,9 +1,5 @@
 #include "Aruco.h"
 
-Aruco::Aruco() :
-    _dictionary(cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250))
-{
-}
 
 Aruco::Aruco(cv::Mat &im) :
     _dictionary(cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250)),
@@ -13,7 +9,7 @@ Aruco::Aruco(cv::Mat &im) :
 
 void Aruco::find_markers()
 {
-    if(_im.empty() == false) 
+    if(_im.empty() == false)
     {
         cv::aruco::detectMarkers(_im, _dictionary, _corners, _ids);
     }

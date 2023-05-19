@@ -3,6 +3,7 @@
 
 
 Camera::Camera() :
+    Aruco(frame),
     _Aruco_ON(true)
 {
     _vid.open(0, cv::CAP_V4L2);
@@ -20,7 +21,6 @@ Camera::~Camera()
 cv::Mat Camera::capture_frame()
 {
     _vid >> frame;
-    set_ArucoImage(frame);
     if(frame.empty() == false) {
         if(_Aruco_ON)
         {

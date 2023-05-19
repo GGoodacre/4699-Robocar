@@ -29,6 +29,6 @@ class Drive
 
 };
 
-#define MAX_POWER 60
-#define TURN_SPEED  0.0026388889
-#define DRIVE_SPEED 0.9405074366
+#define MAX_POWER 100
+#define TURN_SPEED  0.0020
+#define DRIVE_SPEED 0.7

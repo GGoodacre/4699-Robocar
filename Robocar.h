@@ -7,6 +7,7 @@
 #include "Robo_Client.h"
 #include "Camera.h"
 #include "Robo_Gun.h"
+#include "Aruco.h"
 
 class Robocar :
     public CBase4618
@@ -55,11 +56,12 @@ class Robocar :
 
         //AUTOMATIC
         void automatic_mode();
-        bool automatic_drive(cv::Mat im);
-        void automatic_shoot(cv::Mat im);
+        bool automatic_drive();
+        void automatic_shoot();
         int _state;
         bool _in_location;
         bool find_my_car(cv::Point2f& car_center, double& angle);
+        Aruco _topdown;
 
 
         double angle_change_x(std::vector<cv::Point2f> corners);
@@ -85,10 +87,11 @@ enum {STANDBY = 0, PI, MANUAL, AUTO};
 
 //CAR MARKERS
 #define CAR_MARKER 26
-#define CAR_NORTH 1
-#define CAR_EAST 2
+#define CAR_NORTH 4
+//#define CAR_NORTH 0
+#define CAR_EAST 31
 #define CAR_SOUTH 3
-#define CAR_WEST 4
+#define CAR_WEST 30
 
 
 //#define WEST_MARKER -1
@@ -97,17 +100,17 @@ enum {STANDBY = 0, PI, MANUAL, AUTO};
 //#define SOUTH_MARKER -1
 
 //Angle calculations
-#define MAX_DISTANCE 0.782336
-#define ANGLE_MAXDISTANCE 43
-#define ANGLE0_DISTANCE 0.270914
+#define MAX_DISTANCE 1.076297
+#define ANGLE_MAXDISTANCE 44
+#define ANGLE0_DISTANCE 0.32055
 
-#define COEFF_A1 65.419
-#define COEFF_B1 2.9301
-#define COEFF_C1 -3.8349
+#define COEFF_A1 34.332
+#define COEFF_B1 0.6747
+#define COEFF_C1 -2.3117
 
-#define COEFF_A2 -49.698
-#define COEFF_B2 -11.899
-#define COEFF_C2 87.777
+#define COEFF_A2 -25.164
+#define COEFF_B2 -9.3509
+#define COEFF_C2 87.902
 
 #define FOCAL_LENGTH 3.04
 #define REAL_HEIGHT 25.4

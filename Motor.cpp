@@ -1,4 +1,5 @@
 #include "Motor.h"
+#include <iostream>
 
 Motor::Motor(
                 bool orientation,

@@ -63,8 +63,8 @@ bool draw_rotated_rect(cv::Mat& im, cv::RotatedRect rect, cv::Scalar colour)
 int barrier_hit(cv::RotatedRect rect)
 {
     cv::Mat output;
-    cv::RotatedRect Barrier_1 = cv::RotatedRect(cv::Point2f(109,600),cv::Point2f(109,429),cv::Point2f(134,429));
-    cv::RotatedRect Barrier_2 = cv::RotatedRect(cv::Point2f(469,600),cv::Point2f(469,429),cv::Point2f(490,429));
+    cv::RotatedRect Barrier_1 = cv::RotatedRect(cv::Point2f(109,1000),cv::Point2f(109,429),cv::Point2f(134,429));
+    cv::RotatedRect Barrier_2 = cv::RotatedRect(cv::Point2f(469,1000),cv::Point2f(469,429),cv::Point2f(510,429));
     cv::RotatedRect Barrier_3 = cv::RotatedRect(cv::Point2f(260,296),cv::Point2f(260,224),cv::Point2f(337,224));
 
     if (cv::rotatedRectangleIntersection(rect,Barrier_1,output) != cv::INTERSECT_NONE)

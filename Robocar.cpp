@@ -10,7 +10,8 @@ Robocar::Robocar() :
     _empty_im(cv::Mat::zeros(cv::Size(10,10), CV_8UC3)),
     _snapshot(cv::Mat::zeros(cv::Size(640,480), CV_8UC3)),
     _client_image(cv::Mat::zeros(cv::Size(600,600), CV_8UC3)),
-    _pi_camera(cv::Mat::zeros(cv::Size(640,480), CV_8UC3))
+    _pi_camera(cv::Mat::zeros(cv::Size(640,480), CV_8UC3)),
+    _topdown(_client_image)
 {
 
     //Initilize OPENCV Window
@@ -18,7 +19,7 @@ Robocar::Robocar() :
     _input_box = cv::Mat::zeros(cv::Size(INPUT_WIDTH,INPUT_HEIGHT), CV_8UC3);
     _client.start(ARENA_ADDRESS, ARENA_PORT);
     _cmd_server.start_cmd(PC_PORT);
-    _server.start(IM_PORT, _snapshot);
+    _server.start(IM_PORT, _client_image);
 
 }
 
@@ -50,7 +51,7 @@ void Robocar::update()
             else if(_key == 'a')
             {
                 _mode = AUTO;
-                _state = 4;
+                _state = 0;
             }
             break;
         case PI:
@@ -126,29 +127,24 @@ void Robocar::testPI()
         cv::imshow("Server", test_image);
         cv::imwrite("arena.jpg", test_image);
     }
-    std::cout << "Current Status: " << test_status << std::endl;
-    /*
+
     std::vector<int> ids;
     ids = _camera.get_ids();
+    std::vector<cv::Point2f> corners;
+
     if(ids.size() > 0)
     {
         for(int i = 0; i < ids.size(); i++)
         {
-            bool match = false;
-            for(int j = 0; j < test_ids.size(); j++)
-            {s
-                if(ids.at(i) == test_ids.at(j))
-                {
-                    match = true;
-                }
-            }
-            if(match == false)
-            {
-                test_ids.push_back(ids.at(i));
-            }
+            std::cout << "ID: " << ids.at(i) << std::endl;
+            corners = _camera.get_corners().at(i);
+            std::cout << "0: " << corners.at(0) << std::endl;
+            std::cout << "1: " << corners.at(1) << std::endl;
+            std::cout << "2: " << corners.at(2) << std::endl;
+            std::cout << "3: " << corners.at(3) << std::endl;
         }
     }
-
+    /*
     std::vector<std::string> cmds;
     cmds = _server.get_cmds();
     if (cmds.size() > 0)
@@ -169,11 +165,15 @@ void Robocar::telecommunication_mode()
 
     std::string cmd;
     cmd = _cmd_server.get_latest_cmd();
-    _snapshot = _client.get_image();
+    _client_image = _client.get_image();
     _server.set_status(std::to_string(_state));
+    _topdown.find_markers();
+    _topdown.draw_markers();
 
     _server.unlock();
     _client.unlock();
+
+
 
     _in_location = false;
 
@@ -191,7 +191,7 @@ void Robocar::telecommunication_mode()
     state_change();
     telecommunication_drive(_cmd.substr(5,4));
     telecommunication_shoot(_cmd.substr(0,5));
-    automatic_shoot(_snapshot);
+    automatic_shoot();
 
 }
 
@@ -287,54 +287,62 @@ void Robocar::automatic_mode()
 
     _client_image = _client.get_image();
     _pi_camera = _camera.capture_frame();
-    _snapshot = _pi_camera;
+    _snapshot = _client_image;
+    _topdown.find_markers();
+    _topdown.draw_markers();
 
     _client.unlock();
     _server.unlock();
-    //client_image = cv::imread("arena.jpg");
-    cv::Mat shoot_image;
-    _client_image.copyTo(shoot_image);
+
 
 
     state_change();
-    if(_client_image.empty() == false)
-    {
-        _in_location = automatic_drive(_client_image);
-    }
-    automatic_shoot(shoot_image);
+    _in_location = automatic_drive();
+    _in_location = false;
+    automatic_shoot();
 }
 
-bool Robocar::automatic_drive(cv::Mat im)
+bool Robocar::automatic_drive()
 {
 
     cv::Point2f car_center;
+    cv::Point2f desired_location;
     double car_angle;
     bool car;
-    car find_my_car(car_center, car_angle);
-    
+    car = find_my_car(car_center, car_angle);
+    double desired_angle;
+
     if(car == true)
     {
-        //for(int i = 0; i < 4; i++)
-        //{
-        //    std::cout << "ID: " << i << " X: " << car_location.at(i).x << " Y: " << car_location.at(i).y << std::endl;
-        //}
-        //std::cout << "Car Center x: " << car_center.x << " y: " << car_center.y << std::endl;
-        //std::cout << "Car Angle: " << car_angle << std::endl;
+        desired_angle = car_angle;
+        desired_location = car_center;
         switch(_state)
         {
+            case(0):
+            {
+                desired_location = cv::Point2f(65,500);
+                desired_angle = 0;
+                break;
+            }
+            case(1):
+            {
+                desired_angle = 0;
+                break;
+            }
             case(2):
             {
-                desired_location = cv::Point2f(70, 395);
+                desired_angle = 110;
                 break;
             }
             case(3):
             {
-                desired_location = cv::Point2f(257, 356);
+                desired_location = cv::Point2f(170, 288);
+                desired_angle = -90;
                 break;
             }
             case(4):
             {
-                desired_location = cv::Point2f(517, 560);
+                desired_location = cv::Point2f(570, 800);
                 break;
             }
             default:
@@ -344,12 +352,19 @@ bool Robocar::automatic_drive(cv::Mat im)
             }
         }
         //std::cout << "Next Location x: " << desired_location.x << " y: " << desired_location.y << std::endl;
-
-        if(distance(desired_location, car_center) < 30)
+        //std::cout << "Distance: " << distance(desired_location, car_center) << std::endl;
+        if(distance(desired_location, car_center) < 10)
         {
-            //std::cout << "TOO CLOSE" << std::endl;
-            _drive.stop();
-            return true;
+            if(abs(car_angle - desired_angle) < 0.30*(1/PIXELStoMETERS))
+            {
+                _drive.stop();
+                return true;
+            }
+            else
+            {
+                _drive.go_until(car_angle - desired_angle, 0);
+                return true;
+            }
         }
         else
         {
@@ -364,7 +379,7 @@ bool Robocar::automatic_drive(cv::Mat im)
             {
                 a = angle(car_center, desired_location);
                 cv::Point2f middle_point = cv::Point2f((car_center.x+desired_location.x)/2,(car_center.y+desired_location.y)/2);
-                car_path = cv::RotatedRect(middle_point, cv::Size2f(40,distance(desired_location, car_center)), angle(cv::Point2f(car_center.y,car_center.x), cv::Point2f(desired_location.y,desired_location.x)));
+                car_path = cv::RotatedRect(middle_point, cv::Size2f(0.14*(1/PIXELStoMETERS),distance(desired_location, car_center)), angle(cv::Point2f(car_center.y,car_center.x), cv::Point2f(desired_location.y,desired_location.x)));
 
                 switch(barrier_hit(car_path))
                 {
@@ -410,7 +425,7 @@ bool Robocar::automatic_drive(cv::Mat im)
                     {
                         if(cw != 0)
                         {
-                            d = 100;
+                            d = 0.4*(1/PIXELStoMETERS);
                         }
                         _drive.go_until(car_angle - a, d*0.002032);
                         loop_exit = true;
@@ -425,22 +440,23 @@ bool Robocar::automatic_drive(cv::Mat im)
             } while(loop_exit == false);
 
             //////////////////////////////// TESTING CODE
-            draw_rotated_rect(im, car_path, cv::Scalar(255,255,255));
-            cv::circle(im, desired_location, 4, cv::Scalar(0,255,0));
-            cv::circle(im, car_center, 4, cv::Scalar(0,0,255));
-            cv::imshow("Rects", im);
+            draw_rotated_rect(_snapshot, car_path, cv::Scalar(255,255,255));
+            cv::circle(_snapshot, desired_location, 4, cv::Scalar(0,255,0));
+            cv::circle(_snapshot, car_center, 4, cv::Scalar(0,0,255));
+            cv::imshow("Rects", _snapshot);
+            /*
             std::cout << "Car Angle: " << car_angle << std::endl;
             std::cout << "Angle: " << a << std::endl;
             std::cout << "Direction: " << car_angle - a << std::endl;
             std::cout << "Distance to target: " << distance(desired_location, car_center)*0.002032 << std::endl;
-            ////////////////////////////////
+            *////////////////////////////////
 
             return false;
         }
     }
 }
 
-void Robocar::automatic_shoot(cv::Mat im)
+void Robocar::automatic_shoot()
 {
     //std::cout << "AS" << std::endl;
     int desired_marker;
@@ -491,45 +507,45 @@ void Robocar::automatic_shoot(cv::Mat im)
     }
 
     if(target_found == -1)
+    //if(true)
     {
         cv::Point2f car_center;
         double car_angle;
         bool car;
-        car find_my_car(car_center, car_angle);
+        car = find_my_car(car_center, car_angle);
 
         if(car == true)
         {
-
             double d;
             double marker_angle;
             switch(_state)
             {
                 case(0):
                 {
-                    marker_angle = atan2(car_center.y,(im.size().width/2+50 - car_center.x));
+                    marker_angle = atan2(car_center.y,(_client_image.size().width/2+50 - car_center.x));
                     marker_angle = marker_angle * (180/M_PI);
-                    d = distance(car_center, cv::Point2f(im.size().width/2,0));
+                    d = distance(car_center, cv::Point2f(_client_image.size().width/2+50,0));
                     break;
                 }
                 case(1):
                 {
-                    marker_angle = atan2((car_center.y - im.size().height/2),(im.size().width - car_center.x));
+                    marker_angle = atan2((car_center.y - _client_image.size().height/2),(_client_image.size().width - car_center.x));
                     marker_angle = marker_angle * (180/M_PI);
-                    d = distance(car_center, cv::Point2f(im.size().width,im.size().height/2));
+                    d = distance(car_center, cv::Point2f(_client_image.size().width,_client_image.size().height/2));
                     break;
                 }
                 case(2):
                 {
-                    marker_angle = atan2((car_center.y - im.size().height/2),(-car_center.x));
+                    marker_angle = atan2((car_center.y - _client_image.size().height/2),(-car_center.x));
                     marker_angle = marker_angle * (180/M_PI);
-                    d = distance(car_center, cv::Point2f(0,im.size().height/2));
+                    d = distance(car_center, cv::Point2f(0,_client_image.size().height/2));
                     break;
                 }
                 case(3):
                 {
-                    marker_angle = atan2((car_center.y - im.size().height),(im.size().width/2 - car_center.x));
+                    marker_angle = atan2((car_center.y - _client_image.size().height),(_client_image.size().width/2 - car_center.x));
                     marker_angle = marker_angle * (180/M_PI);
-                    d = distance(car_center, cv::Point2f(im.size().width/2,im.size().height));
+                    d = distance(car_center, cv::Point2f(_client_image.size().width/2,_client_image.size().height));
                     break;
                 }
                 default:
@@ -575,13 +591,6 @@ void Robocar::automatic_shoot(cv::Mat im)
                     _gun.fire();
                 }
             }
-            else
-            {
-                if(_in_location)
-                {
-                    _drive.go_until(angle_x, d);
-                }
-            }
         }
     }
     else
@@ -597,9 +606,7 @@ void Robocar::automatic_shoot(cv::Mat im)
 
 bool Robocar::find_my_car(cv::Point2f &car_center, double &angle)
 {
-    Aruco aruco = Aruco(_client_image);
-    aruco.find_markers();
-    std::vector<int> ids = aruco.get_ids();
+    std::vector<int> ids = _topdown.get_ids();
 
 
     int car = -1;
@@ -634,45 +641,64 @@ bool Robocar::find_my_car(cv::Point2f &car_center, double &angle)
     }
     else
     {
-        std::vector<cv::Point2f> marker_location = aruco.get_corners().at(car);
-        cv::Point2f marker_center = cv::Point2f((car_location.at(0).x + car_location.at(1).x)/2,(car_location.at(0).y + car_location.at(2).y)/2);
-        double car_angle = atan2((car_location.at(1).y - car_location.at(0).y),(car_location.at(0).x-car_location.at(1).x)) * (180/M_PI);
+        std::vector<cv::Point2f> marker_location = _topdown.get_corners().at(car);
+        cv::Point2f marker_center = cv::Point2f((marker_location.at(0).x + marker_location.at(2).x)/2,(marker_location.at(0).y + marker_location.at(2).y)/2);
+        double car_angle = atan2(-(marker_location.at(0).y - marker_location.at(3).y),(marker_location.at(0).x-marker_location.at(3).x)) * (180/M_PI);
 
         double offset_distance;
         double offset_angle;
         cv::Point2f offset;
-        switch(ids.at(i))
+        switch(ids.at(car))
         {
-            case NORTH_MARKER:
+            case CAR_NORTH:
             {
-                offset_distance = 0.15*(1/PIXELStoMETERS);
+                offset_distance = 0.07*(1/PIXELStoMETERS);
                 offset_angle = 180;
                 break;
             }
-            case EAST_MARKER:
+            case CAR_EAST:
             {
-                offset_distance = 0.05*(1/PIXELStoMETERS);
-                offset_angle = -90;
+                offset_distance = 0.07*(1/PIXELStoMETERS);
+                offset_angle = 90;
                 break;
             }
-            case SOUTH_MARKER:
+            case CAR_SOUTH:
             {
-                offset_distance = 0.15*(1/PIXELStoMETERS);
+                offset_distance = 0.08*(1/PIXELStoMETERS);
                 offset_angle = 0;
                 break;
             }
-            case WEST_MARKER:
+            case CAR_WEST:
             {
-                offset_distance = 0.05*(1/PIXELStoMETERS);
-                offset_angle = 90;
+                offset_distance = 0.07*(1/PIXELStoMETERS);
+                offset_angle = -90;
+                break;
+            }
+            default:
+            {
+                offset_distance = 0;
+                offset_angle = 0;
                 break;
             }
         }
 
-        offset = cv::Point2f(offset_distance*cos((offset_angle+car_angle)*(M_PI/180)),offset_distance*sin((offset_angle+car_angle)*(M_PI/180)));
-        car_center = marker_center + offset;
+        offset = cv::Point2f(offset_distance*cos((offset_angle+car_angle)*(M_PI/180)),-offset_distance*sin((offset_angle+car_angle)*(M_PI/180)));
+        car_center = offset + marker_center;
         angle = car_angle;
 
+        /*
+        std::cout << "Marker: " << ids.at(car) << std::endl;
+        std::cout << "0: " << marker_location.at(0) << std::endl;
+        std::cout << "1: " << marker_location.at(1) << std::endl;
+        std::cout << "2: " << marker_location.at(2) << std::endl;
+        std::cout << "3: " << marker_location.at(3) << std::endl;
+        std::cout << "Offset Distance: " << offset_distance << std::endl;
+        std::cout << "Offset Angle: " << offset_angle << std::endl;
+        std::cout << "Marker Center: " << marker_center << std::endl;
+        std::cout << "Offset: " << offset << std::endl;
+        std::cout << "Car Center: " << car_center << std::endl;
+        std::cout << "Car Angle: " << car_angle << std::endl;
+        */
         return true;
     }
 
@@ -717,8 +743,7 @@ double Robocar::angle_change_y(std::vector<cv::Point2f> corners)
     //std::cout << "Distance: " << std::to_string(d) << std::endl;
     if(d < ANGLE0_DISTANCE)
     {
-        //return COEFF_A2*pow(d,2) + COEFF_B2*d + COEFF_C2;
-        return 0;
+        return COEFF_A2*pow(d,2) + COEFF_B2*d + COEFF_C2;
     }
     else if(d > MAX_DISTANCE)
     {
