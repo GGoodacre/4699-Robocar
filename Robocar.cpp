@@ -427,7 +427,11 @@ bool Robocar::automatic_drive()
                         {
                             d = 0.4*(1/PIXELStoMETERS);
                         }
-                        _drive.go_until(car_angle - a, d*0.002032);
+                        if(d*PIXELStoMETERS < 0.40*(1/PIXELStoMETERS))
+                        {
+                            d = d + 0.2*(1/PIXELStoMETERS);
+                        }
+                        _drive.go_until(car_angle - a, d*PIXELStoMETERS);
                         loop_exit = true;
                         break;
                     }
